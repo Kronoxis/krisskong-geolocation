@@ -1,0 +1,65 @@
+.main-container {
+    margin: 0;
+    font-family: sans-serif;
+    line-height: 1.5;
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+}
+
+#speedometer {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 100%;
+}
+
+#panel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    flex: none;
+    z-index: 0;
+}
+
+#labels tspan {
+    font-family: "Sofia Sans Condensed", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+    font-size: 1.5em;
+    text-shadow: 0 0 0.1em black;
+    fill: #ffffff;
+}
+
+#labels {
+    position: absolute;
+    left: 0;
+    top: 0;
+    flex: none;
+    z-index: 1;
+}
+
+#needle {
+    position: absolute;
+    transform-origin: bottom center;
+    top: 0;
+    height: 50%;
+    flex: none;
+    z-index: 2;
+}
+
+#display {
+    display: block;
+    text-align: center !important;
+    font-size: 4em !important;
+    color: #ffffff;
+    text-anchor: middle;
+}
+
+#display+tspan {
+    text-anchor: middle;
+}
