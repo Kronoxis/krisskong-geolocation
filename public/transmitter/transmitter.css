@@ -1,0 +1,110 @@
+/* a minimalist set of CSS resets */
+
+/* default to border-box */
+html {
+    box-sizing: border-box;
+    font-size: 16px;
+    background-color: #000000;
+    color: #ffffff;
+}
+
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+}
+
+/* adjust typography defaults */
+body {
+    margin: 1rem;
+    font-family: sans-serif;
+    line-height: 1.5;
+    overflow: hidden auto;
+}
+
+h1 {
+    margin-bottom: 0;
+}
+
+/* images and videos max out at full width */
+img,
+video {
+    height: auto;
+    max-width: 100%;
+}
+
+#privacy {
+    width: 60px;
+    height: 60px;
+}
+
+#privacy.show .show,
+#privacy .hide {
+    display: block;
+}
+
+#privacy.show .hide,
+#privacy .show {
+    display: none;
+}
+
+#privacy svg * {
+    fill: #ffffff;
+}
+
+iframe {
+    border: none;
+    outline: none;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+button {
+    appearance: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    background-color: #ffffff;
+    color: #000000;
+    padding: 8px 16px;
+    font-weight: bold;
+    border-radius: 3px;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    width: 100%;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.col {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%;
+    gap: 16px;
+}
+
+.preview {
+    justify-content: space-evenly;
+}
+
+.toggle::before {
+    content: "Hide ";
+}
+
+.toggle.hidden::before {
+    content: "Show ";
+}
+
+.hidden+div {
+    height: 0 !important;
+}
+
+.hidden iframe {
+    display: none;
+}

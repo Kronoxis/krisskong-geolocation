@@ -1,0 +1,6 @@
+.glitchdotcom.json
+.node-gyp
+node_modules
+*.lock
+package-lock.json
+.env

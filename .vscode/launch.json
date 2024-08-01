@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "node-terminal",
+            "name": "Start",
+            "request": "launch",
+            "command": "set PORT=3000 && yarn run start",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
