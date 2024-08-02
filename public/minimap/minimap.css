@@ -1,0 +1,8 @@
+.main-container {
+    margin: 0;
+    font-family: sans-serif;
+    line-height: 1.5;
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+}

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="https://glitch.com/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Minimap</title>
+
+    <!-- import the webpage's stylesheet -->
+    <link rel="stylesheet" href="/minimap/minimap.css" />
+</head>
+
+<body class="main-container">
+    <div id="minimap">
+        <svg id="needle" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewbox="0 0 200 200">
+            <defs>
+                <style>
+                    .s {
+                        fill: #fff;
+                    }
+                </style>
+            </defs>
+            <g id="d">
+                <circle class="s" r="100" cx="100" cy="100"></circle>
+            </g>
+        </svg>
+    </div>
+
+    <script>window.SOCKET = "{{ SOCKET }}"</script>
+    <script type="module" src="/minimap/minimap.js"></script>
+</body>
+
+</html>
