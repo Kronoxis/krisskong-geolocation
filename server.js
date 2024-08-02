@@ -1,3 +1,4 @@
+const env = require("dotenv").config(".env").parsed;
 const path = require("path");
 
 // ---------------
@@ -94,7 +95,7 @@ fastify.get("/ping", function (request, reply) {
 // ---------------
 
 fastify.listen(
-    { port: process.env.PORT, host: "0.0.0.0" },
+    { port: env.PORT, host: "0.0.0.0" },
     function (err, address) {
         if (err) {
             console.error(err);

@@ -11,6 +11,7 @@
         "@fastify/multipart": "^8.3.0",
         "@fastify/static": "^6.10.2",
         "@fastify/view": "^8.0.0",
+        "dotenv": "^16.4.5",
         "fastify": "^4.21.0",
         "handlebars": "^4.7.8",
         "ws": "^8.18.0"
