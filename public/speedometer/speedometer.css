@@ -1,3 +1,8 @@
+@font-face {
+    font-family: Sofia;
+    src: url("/fonts/SofiaSansCondensed-SemiBold.ttf");
+}
+
 .main-container {
     margin: 0;
     font-family: sans-serif;
@@ -26,7 +31,7 @@
 }
 
 #labels tspan {
-    font-family: "Sofia Sans Condensed", sans-serif;
+    font-family: Sofia, sans-serif;
     font-optical-sizing: auto;
     font-weight: 600;
     font-style: normal;
