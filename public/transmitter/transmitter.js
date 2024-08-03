@@ -169,8 +169,8 @@ function fakePosition() {
     // Send random position
     onPosition({
         coords: {
-            latitude: 52 + Math.random() * 0.0002,
-            longitude: 4 + Math.random() * 0.0002
+            latitude: 46.056946 + Math.random() * 0.0002,
+            longitude: 14.505751 + Math.random() * 0.0002
         }
     });
 }
