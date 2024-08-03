@@ -10,12 +10,22 @@
 
     <!-- import the webpage's stylesheet -->
     <link rel="stylesheet" href="/minimap/minimap.css" />
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script type="text/javascript" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- MapLibre GL JS (still required to handle the rendering) -->
+    <script type="text/javascript" src="https://unpkg.com/maplibre-gl@4.0.2/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@4.0.2/dist/maplibre-gl.css" rel="stylesheet" />
+
+    <!-- MapLibre GL Leaflet -->
+    <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.20/leaflet-maplibre-gl.js"></script>
 </head>
 
 <body class="main-container">
     <div id="minimap">
-        <svg id="needle" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-            viewbox="0 0 200 200">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewbox="0 0 200 200">
             <defs>
                 <style>
                     .s {
@@ -26,9 +36,10 @@
             <g id="d">
                 <circle class="s" r="100" cx="100" cy="100"></circle>
             </g>
+            <g id="display"></g>
         </svg>
     </div>
-
+    <div id="map"></div>
     <script>window.SOCKET = "{{ SOCKET }}"</script>
     <script type="module" src="/minimap/minimap.js"></script>
 </body>
