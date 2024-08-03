@@ -12,34 +12,38 @@
     <link rel="stylesheet" href="/minimap/minimap.css" />
 
     <!-- Leaflet -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script type="text/javascript" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="/minimap/leaflet.css" />
+    <script type="text/javascript" src="/minimap/leaflet.js"></script>
 
     <!-- MapLibre GL JS (still required to handle the rendering) -->
-    <script type="text/javascript" src="https://unpkg.com/maplibre-gl@4.0.2/dist/maplibre-gl.js"></script>
-    <link href="https://unpkg.com/maplibre-gl@4.0.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/minimap/maplibre-gl.css" />
+    <script type="text/javascript" src="/minimap/maplibre-gl.js"></script>
 
     <!-- MapLibre GL Leaflet -->
-    <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.20/leaflet-maplibre-gl.js"></script>
+    <script type="text/javascript" src="/minimap/maplibre-gl-leaflet.js"></script>
 </head>
 
 <body class="main-container">
     <div id="minimap">
-        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewbox="0 0 200 200">
-            <defs>
-                <style>
-                    .s {
-                        fill: #fff;
-                    }
-                </style>
-            </defs>
-            <g id="d">
-                <circle class="s" r="100" cx="100" cy="100"></circle>
-            </g>
-            <g id="display"></g>
-        </svg>
+        <div id="map"></div>
+        <div class="overlay">
+            <span id="north"><i>N</i></span>
+            <svg id="pin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
+                <defs>
+                    <style>
+                        .b {
+                            fill: #fff;
+                            stroke: #000;
+                            stroke-miterlimit: 10;
+                        }
+                    </style>
+                </defs>
+                <path class="b"
+                    d="M45,30c0,8.2843-6.7157,15-15,15s-15-6.7157-15-15c0-12.4516,15-27.1947,15-27.1947,0,0,15,14.743,15,27.1947Z" />
+            </svg>
+        </div>
     </div>
-    <div id="map"></div>
+    <script>window.URL = "{{ URL }}"</script>
     <script>window.SOCKET = "{{ SOCKET }}"</script>
     <script type="module" src="/minimap/minimap.js"></script>
 </body>
