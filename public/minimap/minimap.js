@@ -11,8 +11,8 @@ class Minimap {
             scrollWheelZoom: false,
             doubleClickZoom: false,
             touchZoom: false,
+            tap: false,
             attributionControl: false,
-            renderer: L.SVG,
             center: [46.056946, 14.505751],
             zoom: 20,
         });
