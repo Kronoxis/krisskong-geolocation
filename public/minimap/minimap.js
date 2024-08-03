@@ -34,12 +34,16 @@ class Minimap {
         this.error = false;
 
         this.update();
+
+        this._resize = this.resize.bind(this);
+        window.addEventListener("resize", this._resize);
+        this._resize();
     }
 
     get location() { return { latitude: this._latitude, longitude: this._longitude }; }
     set location({ latitude, longitude }) { this._targetLatitude = latitude; this._targetLongitude = longitude; }
 
-    async update(time) {
+    update(time) {
         if (this.error) {
         }
         else if (this._time > 0) {
@@ -64,6 +68,13 @@ class Minimap {
         this._lastLongitude = this._longitude;
 
         requestAnimationFrame(this._update);
+    }
+
+    resize() {
+        const { clientWidth: pageSize } = document.querySelector(".main-container");
+        const { clientWidth: elementSize } = this.element;
+        const scale = pageSize / elementSize;
+        this.element.style.transform = `scale(${scale})`;
     }
 }
 const minimap = new Minimap();

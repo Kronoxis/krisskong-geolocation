@@ -25,22 +25,24 @@
 
 <body class="main-container">
     <div id="minimap">
-        <div id="map"></div>
-        <div class="overlay">
-            <span id="north"><i>N</i></span>
-            <svg id="pin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
-                <defs>
-                    <style>
-                        .b {
-                            fill: #fff;
-                            stroke: #000;
-                            stroke-miterlimit: 10;
-                        }
-                    </style>
-                </defs>
-                <path class="b"
-                    d="M45,30c0,8.2843-6.7157,15-15,15s-15-6.7157-15-15c0-12.4516,15-27.1947,15-27.1947,0,0,15,14.743,15,27.1947Z" />
-            </svg>
+        <div class="content">
+            <div id="map"></div>
+            <div class="overlay">
+                <span id="north"><i>N</i></span>
+                <svg id="pin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
+                    <defs>
+                        <style>
+                            .b {
+                                fill: #fff;
+                                stroke: #000;
+                                stroke-miterlimit: 10;
+                            }
+                        </style>
+                    </defs>
+                    <path class="b"
+                        d="M45,30c0,8.2843-6.7157,15-15,15s-15-6.7157-15-15c0-12.4516,15-27.1947,15-27.1947,0,0,15,14.743,15,27.1947Z" />
+                </svg>
+            </div>
         </div>
     </div>
     <script>window.URL = "{{ URL }}"</script>

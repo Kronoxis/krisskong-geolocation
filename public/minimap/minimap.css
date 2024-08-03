@@ -14,12 +14,19 @@
 
 #minimap {
     --stroke: 1em;
+    width: 300px;
+    height: 300px;
+    transform-origin: top left;
+    position: relative;
+    margin: 0;
+}
+
+#minimap .content {
+    position: absolute;
     width: calc(100% - var(--stroke));
     height: calc(100% - var(--stroke));
-    position: relative;
     left: calc(var(--stroke) * 0.5);
     top: calc(var(--stroke) * 0.5);
-    margin: 0;
     border-radius: 100%;
     border: var(--stroke) solid black;
     box-sizing: border-box;
