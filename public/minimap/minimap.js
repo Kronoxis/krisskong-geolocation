@@ -44,9 +44,10 @@ class Minimap {
     set location({ latitude, longitude }) { this._targetLatitude = latitude; this._targetLongitude = longitude; }
 
     update(time) {
+        this.pin.classList.toggle("error", this.error);
         if (this.error) {
-        }
-        else if (this._time > 0) {
+            this._rotation = 0;
+        } else if (this._time > 0) {
             const deltaTime = (time - this._time) * 0.001;
             const t = Math.min(deltaTime, Math.max(deltaTime, 0.001), 0.2);
             this._latitude = this._latitude * (1 - t) + this._targetLatitude * t;

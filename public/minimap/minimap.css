@@ -61,6 +61,39 @@
     transition: transform 0.2s ease;
 }
 
+#pin.error {
+    position: relative;
+    width: calc(var(--stroke) * 8);
+    height: calc(var(--stroke) * 8);
+    top: 1.2em;
+
+    font-family: Pricedown, sans-serif;
+    font-size: 1.5em;
+    text-shadow: 0 0 0.1em black;
+    fill: #ffffff;
+
+    text-align: center !important;
+    font-size: 2em !important;
+    color: #ffffff;
+    text-anchor: middle;
+}
+
+#pin:not(.error)>:not(.error) {
+    display: block;
+}
+
+#pin:not(.error)>.error {
+    display: none;
+}
+
+#pin.error>:not(.error) {
+    display: none;
+}
+
+#pin.error>.error {
+    display: block;
+}
+
 #north {
     background-color: black;
     color: white;

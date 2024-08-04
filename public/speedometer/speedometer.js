@@ -20,8 +20,7 @@ class Speedometer {
         if (this.error) {
             this.display.innerHTML = `N/A`;
             this.needle.style.rotate = `-170deg`;
-        }
-        else if (this._time > 0) {
+        } else if (this._time > 0) {
             const deltaTime = (time - this._time) * 0.001;
             const t = Math.min(deltaTime, Math.max(deltaTime, 0.001), 0.2);
             this._speed = this._speed * (1 - t) + this._target * t;
