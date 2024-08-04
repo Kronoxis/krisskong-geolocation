@@ -40,7 +40,7 @@ class Minimap {
     async setStyle() {
         const response = await fetch(`${window.URL}/minimap/mapstyle.json`);
         const style = await response.json();
-        style.sources.openmaptiles.url = `style.sources.openmaptiles.url?api_key=${window.STADIA_API_KEY}`;
+        style.sources.openmaptiles.url += `?api_key=${window.STADIA_API_KEY}`;
         L.maplibreGL({ style }).addTo(this.map);
     }
 
