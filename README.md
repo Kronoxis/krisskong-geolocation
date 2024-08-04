@@ -3,6 +3,7 @@
 ## Configuration 
 ### Glitch
 1. Configure `PROJECT` in `.env` to match the name of your Glitch project.
+2. Configure `STADIA_API_KEY` in `.env` to contain your [Stadia API key](https://client.stadiamaps.com/dashboard/)
 
 ### StreamElements
 1. Open [Overlays](https://streamelements.com/dashboard/overlays)

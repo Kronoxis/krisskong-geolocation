@@ -16,10 +16,7 @@ class Minimap {
             center: [46.056946, 14.505751],
             zoom: 20,
         });
-        L.maplibreGL({
-            style: `${window.URL}/minimap/mapstyle.json`,
-            attribution: "&copy; OpenStreetMap"
-        }).addTo(this.map);
+        this.setStyle();
 
         this._latitude = 46.056946;
         this._longitude = 14.505751;
@@ -38,6 +35,13 @@ class Minimap {
         this._resize = this.resize.bind(this);
         window.addEventListener("resize", this._resize);
         this._resize();
+    }
+
+    async setStyle() {
+        const response = await fetch(`${window.URL}/minimap/mapstyle.json`);
+        const style = await response.json();
+        style.sources.openmaptiles.url = `style.sources.openmaptiles.url?api_key=${window.STADIA_API_KEY}`;
+        L.maplibreGL({ style }).addTo(this.map);
     }
 
     get location() { return { latitude: this._latitude, longitude: this._longitude }; }
