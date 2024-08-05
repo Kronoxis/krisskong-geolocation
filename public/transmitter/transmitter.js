@@ -220,7 +220,7 @@ class Minimap {
     update(time) {
         if (this._time > 0) {
             const deltaTime = (time - this._time) * 0.001;
-            const t = Math.min(deltaTime, Math.max(deltaTime, 0.001), 0.2);
+            const t = 1;// Math.min(deltaTime, Math.max(deltaTime, 0.001), 0.2);
             this._latitude = this._latitude * (1 - t) + this._targetLatitude * t;
             this._longitude = this._longitude * (1 - t) + this._targetLongitude * t;
         }
@@ -229,7 +229,7 @@ class Minimap {
         if (!approximately(this._latitude, this._targetLatitude) ||
             !approximately(this._longitude, this._targetLongitude)) {
 
-            this.map.panTo([this._latitude, this._longitude]);
+            this.map.panTo([this._latitude, this._longitude], { animate: false });
             if (!this.canvas) this.canvas = this.display.querySelector("canvas");
             if (this.canvas) {
                 const image = this.canvas.toDataURL("png");
