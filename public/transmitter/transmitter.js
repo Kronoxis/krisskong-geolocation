@@ -194,7 +194,7 @@ class Minimap {
             tap: false,
             attributionControl: false,
             center: [46.056946, 14.505751],
-            zoom: 19,
+            zoom: 17,
         });
         this.setStyle();
 
