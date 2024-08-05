@@ -156,6 +156,7 @@ function onPosition(pos) {
 
         // Update Minimap
         minimap.location = { latitude, longitude };
+        minimap.update();
     }
 
     // Update UI
@@ -218,26 +219,27 @@ class Minimap {
     set location({ latitude, longitude }) { this._targetLatitude = latitude; this._targetLongitude = longitude; }
 
     update(time) {
-        if (this._time > 0) {
-            const deltaTime = (time - this._time) * 0.001;
-            const t = 1;// Math.min(deltaTime, Math.max(deltaTime, 0.001), 0.2);
-            this._latitude = this._latitude * (1 - t) + this._targetLatitude * t;
-            this._longitude = this._longitude * (1 - t) + this._targetLongitude * t;
-        }
-        this._time = time;
+        // if (this._time > 0) {
+        //     const deltaTime = (time - this._time) * 0.001;
+        //     const t = Math.min(deltaTime, Math.max(deltaTime, 0.001), 0.2);
+        //     this._latitude = this._latitude * (1 - t) + this._targetLatitude * t;
+        //     this._longitude = this._longitude * (1 - t) + this._targetLongitude * t;
+        // }
+        // this._time = time;
 
-        if (!approximately(this._latitude, this._targetLatitude) ||
-            !approximately(this._longitude, this._targetLongitude)) {
+        // if (!approximately(this._latitude, this._targetLatitude) ||
+        //     !approximately(this._longitude, this._targetLongitude)) {
 
-            this.map.panTo([this._latitude, this._longitude], { animate: false });
+            // this.map.panTo([this._latitude, this._longitude]);
+            this.map.panTo([this._targetLatitude, this._targetLongitude], { animate: false });
             if (!this.canvas) this.canvas = this.display.querySelector("canvas");
             if (this.canvas) {
                 const image = this.canvas.toDataURL("png");
                 websocket.send(JSON.stringify({ type: "map", image }));
             }
-        }
+        // }
 
-        requestAnimationFrame(this._update);
+        // requestAnimationFrame(this._update);
     }
 }
 const minimap = new Minimap();
