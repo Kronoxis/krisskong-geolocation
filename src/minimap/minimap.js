@@ -16,6 +16,12 @@ server.route(function (fastify) {
 server.onLocationChanged(function (server, client, data) {
     server.clients.forEach(target => {
         if (target === client) return;
-        target.send(JSON.stringify({ type: "location", latitude: data.latitude, longitude: data.longitude }));
+        switch (data.type) {
+            case "location":
+                target.send(JSON.stringify({ type: "location", latitude: data.latitude, longitude: data.longitude }));
+                break;
+            case "map":
+                target.send(JSON.stringify({ type: "map", image: data.image }));
+        }
     });
 });

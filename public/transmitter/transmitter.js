@@ -50,7 +50,7 @@ if (debug) {
 }
 
 // Geolocation logic
-const data = { latitude: 0, longitude: 0, time: -1 };
+const data = { type: "location", latitude: 0, longitude: 0, time: -1 };
 start();
 function start() {
     // Stop watching Geolocation if it is already running
@@ -153,6 +153,9 @@ function onPosition(pos) {
     // Send position to server
     if (websocket.readyState === WebSocket.OPEN) {
         websocket.send(JSON.stringify(data));
+
+        // Update Minimap
+        minimap.location = { latitude, longitude };
     }
 
     // Update UI
@@ -173,4 +176,72 @@ function fakePosition() {
             longitude: 14.505751 + Math.random() * 0.0002
         }
     });
+}
+
+// Render out the minimap on device (due to StreamElements limitations)
+class Minimap {
+    constructor() {
+        this.display = document.querySelector("#minimap");
+
+        this.map = L.map(this.display, {
+            dragging: false,
+            keyboard: false,
+            zoomControl: false,
+            scrollWheelZoom: false,
+            doubleClickZoom: false,
+            touchZoom: false,
+            tap: false,
+            attributionControl: false,
+            center: [46.056946, 14.505751],
+            zoom: 20,
+        });
+        this.setStyle();
+
+        this._latitude = 46.056946;
+        this._longitude = 14.505751;
+        this._targetLatitude = this._latitude;
+        this._targetLongitude = this._longitude;
+        this._update = this.update.bind(this);
+        this._time = -1;
+
+        this.update();
+    }
+
+    async setStyle() {
+        const response = await fetch(`${window.URL}/minimap/mapstyle.json`);
+        const style = await response.json();
+        // style.sources.openmaptiles.url += `?api_key=${window.STADIA_API_KEY}`;
+        L.maplibreGL({ style }).addTo(this.map);
+    }
+
+    get location() { return { latitude: this._latitude, longitude: this._longitude }; }
+    set location({ latitude, longitude }) { this._targetLatitude = latitude; this._targetLongitude = longitude; }
+
+    update(time) {
+        if (this._time > 0) {
+            const deltaTime = (time - this._time) * 0.001;
+            const t = Math.min(deltaTime, Math.max(deltaTime, 0.001), 0.2);
+            this._latitude = this._latitude * (1 - t) + this._targetLatitude * t;
+            this._longitude = this._longitude * (1 - t) + this._targetLongitude * t;
+        }
+        this._time = time;
+
+        if (!approximately(this._latitude, this._targetLatitude) ||
+            !approximately(this._longitude, this._targetLongitude)) {
+
+            this.map.panTo([this._latitude, this._longitude]);
+            if (!this.canvas) this.canvas = this.display.querySelector("canvas");
+            if (this.canvas) {
+                const image = this.canvas.toDataURL("png");
+                websocket.send(JSON.stringify({ type: "map", image }));
+            }
+        }
+
+        requestAnimationFrame(this._update);
+    }
+}
+const minimap = new Minimap();
+
+function approximately(a, b, epsilon = 1e-10) {
+    return Math.abs(a - b) < epsilon;
 }

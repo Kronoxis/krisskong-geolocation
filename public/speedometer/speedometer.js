@@ -52,9 +52,12 @@ function connect() {
     websocket.addEventListener("message", function (event) {
         const { data } = event;
         const json = JSON.parse(data);
-        if (json.type !== "speed") return;
-        const { speed } = json;
-        speedometer.speed = Math.min(speed, Math.max(speed, 0), 260);
+        switch (json.type) {
+            case "speed":
+                const { speed } = json;
+                speedometer.speed = Math.min(speed, Math.max(speed, 0), 260);
+                break;
+        }
     });
 }
 connect();

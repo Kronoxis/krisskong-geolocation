@@ -4,20 +4,6 @@ class Minimap {
         this.display = document.querySelector("#map");
         this.pin = document.querySelector("#pin");
 
-        this.map = L.map(this.display, {
-            dragging: false,
-            keyboard: false,
-            zoomControl: false,
-            scrollWheelZoom: false,
-            doubleClickZoom: false,
-            touchZoom: false,
-            tap: false,
-            attributionControl: false,
-            center: [46.056946, 14.505751],
-            zoom: 20,
-        });
-        this.setStyle();
-
         this._latitude = 46.056946;
         this._longitude = 14.505751;
         this._targetLatitude = this._latitude;
@@ -28,6 +14,8 @@ class Minimap {
         this._update = this.update.bind(this);
         this._time = -1;
 
+        this._map = "";
+
         this.error = false;
 
         this.update();
@@ -37,15 +25,11 @@ class Minimap {
         this._resize();
     }
 
-    async setStyle() {
-        const response = await fetch(`${window.URL}/minimap/mapstyle.json`);
-        const style = await response.json();
-        style.sources.openmaptiles.url += `?api_key=${window.STADIA_API_KEY}`;
-        L.maplibreGL({ style }).addTo(this.map);
-    }
-
     get location() { return { latitude: this._latitude, longitude: this._longitude }; }
     set location({ latitude, longitude }) { this._targetLatitude = latitude; this._targetLongitude = longitude; }
+
+    get image() { return this._map; }
+    set image(data) { this._map = data; }
 
     update(time) {
         this.pin.classList.toggle("error", this.error);
@@ -66,7 +50,7 @@ class Minimap {
         }
         this._time = time;
 
-        this.map.panTo([this._latitude, this._longitude]);
+        this.display.src = this._map;
         this.pin.style.transform = `rotate(${this._rotation}deg)`;
 
         this._lastLatitude = this._latitude;
@@ -103,17 +87,20 @@ function connect() {
     websocket.addEventListener("message", function (event) {
         const { data } = event;
         const json = JSON.parse(data);
-        if (json.type !== "location") return;
-        const { latitude, longitude } = json;
-        minimap.location = { latitude, longitude };
+        switch (json.type) {
+            case "location":
+                const { latitude, longitude } = json;
+                minimap.location = { latitude, longitude };
+                break;
+            case "map":
+                const { image } = json;
+                minimap.image = image;
+                break;
+        }
     });
 }
 connect();
 
 function updateInfo() {
     minimap.error = !websocket || websocket.readyState !== WebSocket.OPEN;
-}
-
-function mapRange(value, fromMin, fromMax, toMin, toMax) {
-    return (value - fromMin) / (fromMax - fromMin) * (toMax - toMin) + toMin;
 }

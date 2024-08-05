@@ -10,6 +10,18 @@
 
     <!-- import the webpage's stylesheet -->
     <link rel="stylesheet" href="/transmitter/transmitter.css" />
+
+    <!-- For Minimap -->
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="/minimap/leaflet.css" />
+    <script type="text/javascript" src="/minimap/leaflet.js"></script>
+
+    <!-- MapLibre GL JS (still required to handle the rendering) -->
+    <link rel="stylesheet" href="/minimap/maplibre-gl.css" />
+    <script type="text/javascript" src="/minimap/maplibre-gl.js"></script>
+
+    <!-- Mapbox GL Leaflet -->
+    <script type="text/javascript" src="/minimap/mapbox-gl-leaflet.js"></script>
 </head>
 
 <body>
@@ -58,7 +70,11 @@
         </div>
     </div>
 
+    <div id="minimap"></div>
+
+    <script>window.URL = "{{ URL }}"</script>
     <script>window.SOCKET = "{{ SOCKET }}"</script>
+    <script>window.STADIA_API_KEY = "{{ STADIA_API_KEY }}"</script>
     <script src="/transmitter/transmitter.js"></script>
 </body>
 

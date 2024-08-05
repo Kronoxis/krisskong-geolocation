@@ -76,7 +76,6 @@ wss.on("connection", function connection(ws) {
     ws.on("error", console.error);
     ws.on("message", function message(rawData) {
         const data = JSON.parse(decoder.decode(rawData));
-        console.log(new Date().toLocaleTimeString(), data);
         for (const hook of hooks) hook?.(wss, ws, data);
     });
 });

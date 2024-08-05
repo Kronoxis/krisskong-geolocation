@@ -21,13 +21,15 @@ server.route(function (fastify) {
 // Calculate Speed
 let speed = 0;
 server.onLocationChanged(function (server, client, data) {
+    if (data.type !== "location") return;
+    
     const distance = haversine(data.latitude, data.longitude);
     const delta = deltaTime(data.time);
     if (delta > toHours(10)) {
         speed = distance / delta;
     }
 
-    console.log(`${new Date().toLocaleTimeString()} ${speed.toFixed(2)}km/h`);
+    console.log(`${new Date().toLocaleTimeString()}: ${speed.toFixed(2)}km/h`);
 
     server.clients.forEach(target => {
         if (target === client) return;
