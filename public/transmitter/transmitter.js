@@ -50,7 +50,7 @@ if (debug) {
 }
 
 // Geolocation logic
-const data = { type: "location", latitude: 0, longitude: 0, time: -1 };
+const locationData = { type: "location", latitude: 0, longitude: 0, time: -1 };
 start();
 function start() {
     // Stop watching Geolocation if it is already running
@@ -136,9 +136,9 @@ function updateInfo() {
     info.innerHTML =
         `Status: ${websocketState()}<br/>` +
         `Heartbeat: ${heartbeat}<br/>` +
-        `Latitude: ${privify(data.latitude.toFixed(8))}<br/>` +
-        `Longitude: ${privify(data.longitude.toFixed(8))}<br/>` +
-        `Last updated: ${new Date(data.time).toLocaleTimeString()}`;
+        `Latitude: ${privify(locationData.latitude.toFixed(8))}<br/>` +
+        `Longitude: ${privify(locationData.longitude.toFixed(8))}<br/>` +
+        `Last updated: ${new Date(locationData.time).toLocaleTimeString()}`;
 }
 
 function onPosition(pos) {
@@ -146,13 +146,13 @@ function onPosition(pos) {
     const { latitude, longitude } = pos.coords;
     const time = Date.now();
 
-    data.latitude = latitude;
-    data.longitude = longitude;
-    data.time = time;
+    locationData.latitude = latitude;
+    locationData.longitude = longitude;
+    locationData.time = time;
 
     // Send position to server
     if (websocket.readyState === WebSocket.OPEN) {
-        websocket.send(JSON.stringify(data));
+        websocket.send(JSON.stringify(locationData));
 
         // Update Minimap
         minimap.location = { latitude, longitude };
@@ -180,6 +180,7 @@ function fakePosition() {
 }
 
 // Render out the minimap on device (due to StreamElements limitations)
+const mapData = { type: "map", image: "", time: -1 };
 class Minimap {
     constructor() {
         this.display = document.querySelector("#minimap");
@@ -234,8 +235,9 @@ class Minimap {
             this.map.panTo([this._targetLatitude, this._targetLongitude], { animate: false });
             if (!this.canvas) this.canvas = this.display.querySelector("canvas");
             if (this.canvas) {
-                const image = this.canvas.toDataURL("png");
-                websocket.send(JSON.stringify({ type: "map", image }));
+                mapData.image = this.canvas.toDataURL("png");
+                mapData.time = Date.now();
+                websocket.send(JSON.stringify(mapData));
             }
         // }
 

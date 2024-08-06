@@ -29,11 +29,11 @@ server.onLocationChanged(function (server, client, data) {
         speed = distance / delta;
     }
 
-    console.log(`${new Date().toLocaleTimeString()}: ${speed.toFixed(2)}km/h`);
+    console.log(`${new Date(data.time).toLocaleTimeString()}: ${speed.toFixed(2)}km/h`);
 
     server.clients.forEach(target => {
         if (target === client) return;
-        target.send(JSON.stringify({ type: "speed", speed }));
+        target.send(JSON.stringify({ type: "speed", time: data.time, speed }));
     })
 });
 

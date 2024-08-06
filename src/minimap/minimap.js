@@ -17,10 +17,10 @@ server.onLocationChanged(function (server, client, data) {
         if (target === client) return;
         switch (data.type) {
             case "location":
-                target.send(JSON.stringify({ type: "location", latitude: data.latitude, longitude: data.longitude }));
+                target.send(JSON.stringify({ type: "location", time: data.time, latitude: data.latitude, longitude: data.longitude }));
                 break;
             case "map":
-                target.send(JSON.stringify({ type: "map", image: data.image }));
+                target.send(JSON.stringify({ type: "map", time: data.time, image: data.image }));
         }
     });
 });

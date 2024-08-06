@@ -34,6 +34,7 @@ class Speedometer {
 const speedometer = new Speedometer();
 
 let websocket = null;
+const packetTime = {};
 function connect() {
     websocket = new WebSocket(window.SOCKET);
     websocket.addEventListener("open", function () {
@@ -50,11 +51,15 @@ function connect() {
         connect();
     });
     websocket.addEventListener("message", function (event) {
-        const { data } = event;
-        const json = JSON.parse(data);
-        switch (json.type) {
+        const { data: json } = event;
+        const data = JSON.parse(json);
+        
+        if (packetTime[json.type] && packetTime[json.type] > json.time) return;
+        packetTime[json.type] = json.time;
+        
+        switch (data.type) {
             case "speed":
-                const { speed } = json;
+                const { speed } = data;
                 speedometer.speed = Math.min(speed, Math.max(speed, 0), 260);
                 break;
         }

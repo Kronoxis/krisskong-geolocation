@@ -69,6 +69,7 @@ class Minimap {
 const minimap = new Minimap();
 
 let websocket = null;
+const packetTime = {};
 function connect() {
     websocket = new WebSocket(window.SOCKET);
     websocket.addEventListener("open", function () {
@@ -85,15 +86,19 @@ function connect() {
         connect();
     });
     websocket.addEventListener("message", function (event) {
-        const { data } = event;
-        const json = JSON.parse(data);
-        switch (json.type) {
+        const { data: json } = event;
+        const data = JSON.parse(json);
+
+        if (packetTime[data.type] && packetTime[data.type] > data.time) return;
+        packetTime[data.type] = data.time;
+        
+        switch (data.type) {
             case "location":
-                const { latitude, longitude } = json;
+                const { latitude, longitude } = data;
                 minimap.location = { latitude, longitude };
                 break;
             case "map":
-                const { image } = json;
+                const { image } = data;
                 minimap.image = image;
                 break;
         }

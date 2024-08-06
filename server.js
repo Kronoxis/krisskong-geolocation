@@ -72,10 +72,19 @@ exports.onLocationChanged = function (hook) {
 const WebSocket = require("ws").WebSocketServer;
 const wss = new WebSocket(fastify);
 const decoder = new TextDecoder();
+const packetTime = {};
 wss.on("connection", function connection(ws) {
     ws.on("error", console.error);
     ws.on("message", function message(rawData) {
         const data = JSON.parse(decoder.decode(rawData));
+
+        if (packetTime[data.type] && packetTime[data.type] > data.time) {
+            console.log(`Packet from ${new Date(data.time).toLocaleTimeString()} dropped, ` +
+                `last handled packet was at ${new Date(packetTime[data.type]).toLocaleTimeString()}`);
+            return;
+        }
+        packetTime[data.type] = data.time;
+
         for (const hook of hooks) hook?.(wss, ws, data);
     });
 });
