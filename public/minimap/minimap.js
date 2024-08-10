@@ -78,19 +78,109 @@ class Minimap {
         this.buffer.innerHTML = "";
 
         // Get map around location
-        const bbox = getBounds(this._latitude, this._longitude, 2.500);
+        const bbox = getBounds(this._latitude, this._longitude, 0.500);
         let data = null;
         try {
             // Get data
+            const filters = {
+                highway: {
+                    values: [
+                        "motorway",
+                        "motorway_link",
+                        "trunk",
+                        "trunk_link",
+                        "primary",
+                        "primary_link",
+                        "secondary",
+                        "secondary_link",
+                        "tertiary",
+                        "tertiary_link",
+                        "residential",
+                        "service",
+                        "living_street"
+                    ]
+                },
+                railway: {
+                    values: [
+                        "light_rail",
+                        "monorail",
+                        "narrow_gauge",
+                        "rail",
+                        "subway",
+                        "tram"
+                    ]
+                },
+                waterway: {
+                    values: [
+                        "stream",
+                        "tidal_channel",
+                        "ditch",
+                        "river",
+                        "canal"
+                    ]
+                },
+                water: {
+                    all: true
+                },
+                building: {
+                    all: true
+                },
+                landuse: {
+                    values: [
+                        "forest",
+                        "farmland",
+                        "residential",
+                        "industrial",
+                        "grass"
+                    ]
+                },
+                boundary: {
+                    tags: {
+                        admin_level: {
+                            values: [
+                                "2"
+                            ]
+                        }
+                    }
+                },
+            };
+            let selection = "";
+            for (const key in filters) {
+                const filter = filters[key];
+                if (filter.all) {
+                    selection += `way["${key}"];`;
+                    continue;
+                }
+                if (filter.values) {
+                    for (const value of filter.values) selection += `way["${key}"="${value}"];`;
+                    continue;
+                }
+                if (filter.tags) {
+                    for (const name in filter.tags) {
+                        const tag = filter.tags[name];
+                        if (tag.all) {
+                            selection += `way["${key}"]["${name}"]`;
+                            continue;
+                        }
+                        if (tag.values) {
+                            for (const value of tag.values) selection += `way["${key}"]["${name}"="${value}"];`;
+                            continue;
+                        }
+                    }
+                }
+            }
+
             const response = await fetch(`https://overpass-api.de/api/interpreter`, {
                 method: "POST",
-                body: `data=${encodeURIComponent(`
-                    [out:json][timeout:10];
-                    node(${bbox.join(",")});
-                    way(bn);
+                body: "data=" + encodeURIComponent(`
+                    [out:json][timeout:10]
+                    [bbox:${bbox.join(",")}];
+                    (
+                        ${selection}
+                    );
                     (._;>;);
                     out qt;
-                `)}`
+                `)
             });
             data = await response.json();
         } catch (ex) {
