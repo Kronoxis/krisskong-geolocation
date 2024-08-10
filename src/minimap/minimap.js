@@ -19,8 +19,6 @@ server.onLocationChanged(function (server, client, data) {
             case "location":
                 target.send(JSON.stringify({ type: "location", time: data.time, latitude: data.latitude, longitude: data.longitude }));
                 break;
-            case "map":
-                target.send(JSON.stringify({ type: "map", time: data.time, image: data.image }));
         }
     });
 });

@@ -156,7 +156,6 @@ function onPosition(pos) {
 
         // Update Minimap
         minimap.location = { latitude, longitude };
-        minimap.update();
     }
 
     // Update UI
@@ -177,75 +176,4 @@ function fakePosition() {
             longitude: 14.505751 + Math.random() * 0.0002
         }
     });
-}
-
-// Render out the minimap on device (due to StreamElements limitations)
-const mapData = { type: "map", image: "", time: -1 };
-class Minimap {
-    constructor() {
-        this.display = document.querySelector("#minimap");
-
-        this.map = L.map(this.display, {
-            dragging: false,
-            keyboard: false,
-            zoomControl: false,
-            scrollWheelZoom: false,
-            doubleClickZoom: false,
-            touchZoom: false,
-            tap: false,
-            attributionControl: false,
-            center: [46.056946, 14.505751],
-            zoom: 17,
-        });
-        this.setStyle();
-
-        this._latitude = 46.056946;
-        this._longitude = 14.505751;
-        this._targetLatitude = this._latitude;
-        this._targetLongitude = this._longitude;
-        this._update = this.update.bind(this);
-        this._time = -1;
-
-        this.update();
-    }
-
-    async setStyle() {
-        const response = await fetch(`${window.URL}/minimap/mapstyle.json`);
-        const style = await response.json();
-        // style.sources.openmaptiles.url += `?api_key=${window.STADIA_API_KEY}`;
-        L.maplibreGL({ style }).addTo(this.map);
-    }
-
-    get location() { return { latitude: this._latitude, longitude: this._longitude }; }
-    set location({ latitude, longitude }) { this._targetLatitude = latitude; this._targetLongitude = longitude; }
-
-    update(time) {
-        // if (this._time > 0) {
-        //     const deltaTime = (time - this._time) * 0.001;
-        //     const t = Math.min(deltaTime, Math.max(deltaTime, 0.001), 0.2);
-        //     this._latitude = this._latitude * (1 - t) + this._targetLatitude * t;
-        //     this._longitude = this._longitude * (1 - t) + this._targetLongitude * t;
-        // }
-        // this._time = time;
-
-        // if (!approximately(this._latitude, this._targetLatitude) ||
-        //     !approximately(this._longitude, this._targetLongitude)) {
-
-            // this.map.panTo([this._latitude, this._longitude]);
-            this.map.panTo([this._targetLatitude, this._targetLongitude], { animate: false });
-            if (!this.canvas) this.canvas = this.display.querySelector("canvas");
-            if (this.canvas) {
-                mapData.image = this.canvas.toDataURL("png");
-                mapData.time = Date.now();
-                websocket.send(JSON.stringify(mapData));
-            }
-        // }
-
-        // requestAnimationFrame(this._update);
-    }
-}
-const minimap = new Minimap();
-
-function approximately(a, b, epsilon = 1e-10) {
-    return Math.abs(a - b) < epsilon;
 }

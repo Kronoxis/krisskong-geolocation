@@ -15,7 +15,11 @@
 <body class="main-container">
     <div id="minimap">
         <div class="content">
-            <img id="map"></img>
+            <svg id="map" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <rect width="200" height="200" style="fill: #788b3c;" />
+                <g id="buffer" style="opacity: 0;"></g>
+                <g id="display"></g>
+            </svg>
             <div class="overlay">
                 <span id="north"><i>N</i></span>
                 <svg id="pin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
@@ -37,7 +41,7 @@
             </div>
         </div>
     </div>
-    <script>window.URL = "{{ URL }}"</script>
+    
     <script>window.SOCKET = "{{ SOCKET }}"</script>
     <script type="module" src="/minimap/minimap.js"></script>
 </body>
