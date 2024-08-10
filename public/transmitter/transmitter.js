@@ -153,9 +153,6 @@ function onPosition(pos) {
     // Send position to server
     if (websocket.readyState === WebSocket.OPEN) {
         websocket.send(JSON.stringify(locationData));
-
-        // Update Minimap
-        minimap.location = { latitude, longitude };
     }
 
     // Update UI

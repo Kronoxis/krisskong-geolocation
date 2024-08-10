@@ -43,23 +43,31 @@
     <div class="row preview">
         <!-- Preview Speedometer -->
         <div class="col">
-            <button class="toggle" onclick="this.classList.toggle('hidden')">Speedometer</button>
-            <div style="width: 200px; height: 200px;">
-                <iframe src="{{ URL }}/speedometer"></iframe>
-            </div>
+            <button class="toggle hidden" onclick="toggle.call(this, 'speedometer')">Speedometer</button>
+            <div style="width: 200px; height: 200px;"></div>
         </div>
 
         <!-- Preview Minimap -->
         <div class="col">
-            <button class="toggle" onclick="this.classList.toggle('hidden')">Minimap</button>
-            <div style="width: 200px; height: 200px;">
-                <iframe src="{{ URL }}/minimap"></iframe>
-            </div>
+            <button class="toggle hidden" onclick="toggle.call(this, 'minimap')">Minimap</button>
+            <div style="width: 200px; height: 200px;"></div>
         </div>
     </div>
 
     <script>window.SOCKET = "{{ SOCKET }}"</script>
-    <script src="/transmitter/transmitter.js"></script>
+    <script type="module" src="/transmitter/transmitter.js"></script>
+    <script>
+        function toggle(application) {
+            this.classList.toggle("hidden");
+            if (this.classList.contains("hidden")) {
+                this.parentElement.querySelector("iframe")?.remove();
+            } else {
+                const frame = document.createElement("iframe");
+                frame.src = `{{ URL }}/${application}`;
+                this.parentElement.querySelector("div")?.appendChild(frame);
+            }
+        }
+    </script>
 </body>
 
 </html>
