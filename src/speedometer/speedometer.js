@@ -20,7 +20,7 @@ server.route(function (fastify) {
 
 // Calculate Speed
 let speed = 0;
-server.onLocationChanged(function (server, client, data) {
+server.onData(function (server, client, data) {
     if (data.type !== "location") return;
     
     const distance = haversine(data.latitude, data.longitude);

@@ -12,7 +12,7 @@ server.route(function (fastify) {
 });
 
 // Log
-server.onLocationChanged(function (server, client, data) {
+server.onData(function (server, client, data) {
     if (data.type !== "location") return;
     console.log(`${new Date(data.time).toLocaleTimeString()}: ${data.latitude}, ${data.longitude}`);
 });

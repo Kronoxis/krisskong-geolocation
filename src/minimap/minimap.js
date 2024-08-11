@@ -12,7 +12,7 @@ server.route(function (fastify) {
 });
 
 // Location
-server.onLocationChanged(function (server, client, data) {
+server.onData(function (server, client, data) {
     server.clients.forEach(target => {
         if (target === client) return;
         switch (data.type) {
