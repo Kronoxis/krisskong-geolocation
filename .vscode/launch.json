@@ -1,11 +1,33 @@
 {
     "configurations": [
         {
-            "type": "node-terminal",
-            "name": "Start",
+            "type": "node",
+            "name": "Server",
             "request": "launch",
-            "command": "yarn run start",
-            "cwd": "${workspaceFolder}"
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": [
+                "start",
+            ],
+            "cwd": "${workspaceFolder}",
+        },
+        {
+            "type": "node-terminal",
+            "name": "Transmitter",
+            "request": "launch",
+            "command": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" http://localhost:3000/?debug",
+            "cwd": "${workspaceFolder}",
+        },
+        {
+            "type": "chrome",
+            "name": "Speedometer",
+            "request": "launch",
+            "url": "http://localhost:3000/speedometer",
+        },
+        {
+            "type": "chrome",
+            "name": "Minimap",
+            "request": "launch",
+            "url": "http://localhost:3000/minimap",
         }
     ]
 }

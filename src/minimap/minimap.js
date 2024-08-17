@@ -17,10 +17,10 @@ server.route(function (fastify) {
 server.onData(function (server, client, data) {
     switch (data.type) {
         case "map":
-            cacheMap(data.latIndex, data.lonIndex, data.tile);
+            cacheMap(data.x, data.y, data.tile);
             return;
         case "request-map":
-            loadMap(client, data.latIndex, data.lonIndex);
+            loadMap(client, data.x, data.y);
             return;
     }
     server.clients.forEach(target => {
@@ -34,21 +34,21 @@ server.onData(function (server, client, data) {
 });
 
 const cacheDir = "cache";
-const cacheFile = (latIndex, lonIndex) => path.join(cacheDir, latIndex.toFixed(0), lonIndex.toFixed(0), "tile.json");
+const cacheFile = (x, y) => path.join(cacheDir, x.toFixed(0), y.toFixed(0), "tile.json");
 
-async function cacheMap(latIndex, lonIndex, tile) {
-    const file = cacheFile(latIndex, lonIndex);
+async function cacheMap(x, y, tile) {
+    const file = cacheFile(x, y);
     await mkdir(path.dirname(file), { mode: 0o644, recursive: true });
     await writeFile(file, JSON.stringify(tile), { encoding: "utf-8" });
 }
 
-async function loadMap(client, latIndex, lonIndex) {
+async function loadMap(client, x, y) {
     try {
-        const file = cacheFile(latIndex, lonIndex);
+        const file = cacheFile(x, y);
         await access(file, constants.R_OK);
         const tile = JSON.parse(await readFile(file, { encoding: "utf-8" }));
-        client.send(JSON.stringify({ type: "map", latIndex, lonIndex, tile }));
+        client.send(JSON.stringify({ type: "map", x, y, tile }));
     } catch (ex) {
-        client.send(JSON.stringify({ type: "map", latIndex, lonIndex, error: 404 }));
+        client.send(JSON.stringify({ type: "map", x, y, error: 404 }));
     }
 }

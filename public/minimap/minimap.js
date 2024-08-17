@@ -1,10 +1,12 @@
 // ---------------
 // CONFIG 
 // ---------------
-// Size of a tile in kilometers
-const tileSize = 1.000;
-// Extra buffer to add to edges of tile in kilometers
-const tileBuffer = 0.200;
+// Size of minimap display in pixels
+const displaySize = 200;
+// Zoom level for data fetching (reduces number of fetches, increases chunk data size)
+const zoom = 15;
+// Zoom level to display
+const targetZoom = 16;
 // Number of tiles to keep in memory
 const memorySize = 100;
 // Nodes to show
@@ -95,8 +97,9 @@ class Minimap {
         this._targetLongitude = this._longitude;
         this._lastLatitude = this._latitude;
         this._lastLongitude = this._longitude;
-        this._latIndex = 0;
-        this._lonIndex = 0;
+        this._tileX = 0;
+        this._tileY = 0;
+        this._bounds = [0, 0, 1, 1];
         this._rotation = 0;
         this._update = this.update.bind(this);
         this._time = -1;
@@ -148,15 +151,18 @@ class Minimap {
 
         this.pin.style.transform = `rotate(${this._rotation}deg)`;
 
+        this.display.style.transform = `scale(${Math.pow(2, targetZoom - zoom)}) translate(${mapRange(this._latitude, this._bounds[0], this._bounds[2], displaySize * 0.5, -displaySize * 0.5)}px, ${mapRange(this._longitude, this._bounds[1], this._bounds[3], displaySize * 0.5, -displaySize * 0.5)}px)`;
+        // console.log(this._latitude, this._longitude, ...this._bounds);
+
         this._lastLatitude = this._latitude;
         this._lastLongitude = this._longitude;
 
         // Update tile
         if (this._fetch === null) {
-            const latIndex = Tile.indexLatitude(this._latitude);
-            const lonIndex = Tile.indexLongitude(this._latitude, this._longitude);
-            if (latIndex !== this._latIndex || lonIndex !== this._lonIndex) {
-                this.requestTile(latIndex, lonIndex);
+            const x = Tile.longitudeToTile(this._longitude);
+            const y = Tile.latitudeToTile(this._latitude);
+            if (x !== this._tileX || y !== this._tileY ) {
+                this.requestTile(x, y);
             }
         }
 
@@ -170,21 +176,21 @@ class Minimap {
         this.element.style.transform = `scale(${scale})`;
     }
 
-    requestTile(latIndex, lonIndex) {
-        if (memory.has(Tile.getKey(latIndex, lonIndex))) {
+    requestTile(x, y) {
+        if (memory.has(Tile.getKey(x, y))) {
             // Get tile from memory
-            this.onTile({ latIndex, lonIndex, elements: memory.get(Tile.getKey(latIndex, lonIndex)) });
+            this.onTile({ x, y, elements: memory.get(Tile.getKey(x, y)) });
         } else {
             // Get tile from server
             if (websocket.readyState === WebSocket.OPEN) {
-                websocket.send(JSON.stringify({ type: "request-map", latIndex, lonIndex }));
+                websocket.send(JSON.stringify({ type: "request-map", x, y }));
                 this._fetch = "waiting";
             }
         }
     }
 
     async onTile(data) {
-        const { latIndex, lonIndex, error, elements } = data;
+        const { x, y, error, tile: elements } = data;
 
         let tile = null;
 
@@ -192,7 +198,7 @@ class Minimap {
             switch (error) {
                 case 404:
                     // Create tile from Overpass API
-                    tile = new Tile(latIndex, lonIndex);
+                    tile = new Tile(x, y);
                     if (await tile.download()) {
                         // Save it on the server
                         tile.cache();
@@ -207,16 +213,17 @@ class Minimap {
             }
         } else if (elements) {
             // Create tile from server data
-            tile = Tile.fromJSON(latIndex, lonIndex, elements);
+            tile = Tile.fromJSON(x, y, elements);
         }
 
         if (tile) {
             // Draw the tile into the buffer
             tile.draw(this.buffer);
 
-            // Save the index of the tile
-            this._latIndex = tile.latIndex;
-            this._lonIndex = tile.lonIndex;
+            // Save the index and bounds of the tile
+            this._tileX = tile.x;
+            this._tileY = tile.y;
+            this._bounds = tile.bounds;
 
             // Store the tile in memory
             memory.store(tile.key, tile);
@@ -232,14 +239,14 @@ class Minimap {
 const minimap = new Minimap();
 
 class Tile {
-    constructor(latIndex, lonIndex) {
-        this.latIndex = latIndex;
-        this.lonIndex = lonIndex;
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
         this.elements = {};
     }
 
-    static fromJSON(latIndex, lonIndex, data) {
-        const tile = new Tile(latIndex, lonIndex);
+    static fromJSON(x, y, data) {
+        const tile = new Tile(x, y);
         for (const order in data) {
             for (const { s, d } of data[order]) {
                 const el = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -251,42 +258,68 @@ class Tile {
         return tile;
     }
 
-    static getKey(latIndex, lonIndex) {
-        return `${latIndex}/${lonIndex}`;
+    static getKey(x, y) {
+        return `${x}/${y}`;
     }
 
-    static toLatitude(latIndex) {
-        const latSize = tileSize / 111.32;
-        return latIndex * latSize - 90 + latSize * 0.5;
+    static toLatitude(y) {
+        const n = Math.PI - 2 * Math.PI * y / Math.pow(2, zoom);
+        return (180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n))));
     }
 
-    static toLongitude(latIndex, lonIndex) {
-        const latSize = tileSize / 111.32;
-        const lonSize = latSize / Math.cos(toRadians(Tile.toLatitude(latIndex)));
-        return lonIndex * lonSize - 180 + lonSize * 0.5;
+    static toLongitude(x) {
+        return (x / Math.pow(2, zoom) * 360 - 180);
     }
 
-    static indexLatitude(latitude) {
-        const latSize = tileSize / 111.32;
-        return Math.floor((latitude + 90) / latSize);
+    static latitudeToTile(latitude) {
+        return Math.floor(Tile.latitudeOnTile(latitude));
     }
 
-    static indexLongitude(latitude, longitude) {
-        const latSize = tileSize / 111.32;
-        const lonSize = latSize / Math.cos(toRadians(latitude));
-        return Math.floor((longitude + 180) / lonSize);
+    static longitudeToTile(longitude) {
+        return Math.floor(Tile.longitudeOnTile(longitude));
+    }
+
+    static latitudeOnTile(latitude) {
+        return ((1 - Math.log(Math.tan(latitude * Math.PI / 180) + 1 / Math.cos(latitude * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
+    }
+
+    static longitudeOnTile(longitude) {
+        return ((longitude + 180) / 360 * Math.pow(2, zoom));
     }
 
     get key() {
-        return Tile.getKey(this.latIndex, this.lonIndex);
+        return Tile.getKey(this.x, this.y);
     }
 
     get latitude() {
-        return Tile.toLatitude(this.latIndex);
+        return Tile.toLatitude(this.y);
     }
 
     get longitude() {
-        return Tile.toLongitude(this.latIndex, this.lonIndex);
+        return Tile.toLongitude(this.x);
+    }
+
+    /**
+     * Get the bounds of this tile
+     * @returns {[minLat: number, minLon: number, maxLat: number, maxLon: number]} Bounds in degrees
+     */
+    get bounds() {
+        const C = 40075016.686;
+        const LIMIT_Y = toDegrees(Math.atan(Math.sinh(Math.PI)));
+
+        const metersPerPixelEW = C / Math.pow(2, zoom + 8);
+        const shiftMetersEW = 256 / 2 * metersPerPixelEW;
+        const shiftDegreesEW = shiftMetersEW * 360 / C;
+
+        const southTile = (256 * Tile.latitudeOnTile(this.latitude, zoom) + 256 / 2) / 256;
+        const northTile = (256 * Tile.latitudeOnTile(this.latitude, zoom) - 256 / 2) / 256;
+
+        return [
+            Math.max(Tile.toLatitude(southTile), -LIMIT_Y),
+            this.longitude - shiftDegreesEW,
+            Math.min(Tile.toLatitude(northTile), LIMIT_Y),
+            this.longitude + shiftDegreesEW
+        ];
     }
 
     add(order, element) {
@@ -316,7 +349,7 @@ class Tile {
 
     async download() {
         // Get tile bounds
-        const bbox = getBounds(this.latitude, this.longitude, tileSize + tileBuffer * 2);
+        const bbox = this.bounds;
 
         // Get data
         let data = null;
@@ -442,8 +475,8 @@ class Tile {
             for (const nodeId of element.nodes) {
                 const node = nodes[nodeId];
                 const command = path.length === 0 ? "M" : "L";
-                const lat = mapRange(node.lat, bbox[0], bbox[2], 0, 200);
-                const lon = mapRange(node.lon, bbox[1], bbox[3], 0, 200);
+                const lat = mapRange(node.lat, bbox[0], bbox[2], 0, displaySize);
+                const lon = mapRange(node.lon, bbox[1], bbox[3], 0, displaySize);
                 path += `${command}${lat} ${lon} `;
             }
             if (closed) path += "Z";
@@ -458,7 +491,7 @@ class Tile {
     cache() {
         if (websocket.readyState === WebSocket.OPEN) {
             const tileData = this.toJSON();
-            const cache = JSON.stringify({ type: "map", latIndex: this.latIndex, lonIndex: this.lonIndex, tile: tileData });
+            const cache = JSON.stringify({ type: "map", x: this.x, y: this.y, tile: tileData });
             websocket.send(cache);
         }
     }
