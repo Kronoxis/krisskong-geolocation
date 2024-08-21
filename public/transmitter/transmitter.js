@@ -174,3 +174,9 @@ function fakePosition() {
         }
     });
 }
+
+window.enableApplication = function (application, enable) {
+    if (websocket.readyState === WebSocket.OPEN) {
+        websocket.send(JSON.stringify({ type: `enable-${application}`, enable }));
+    }
+}

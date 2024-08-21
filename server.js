@@ -50,7 +50,19 @@ exports.route = function (route) {
 }
 
 // WebSocket Hooks
-const hooks = [];
+const connectHooks = [];
+
+/**
+ * Add a hook to the WebSocket connect event
+ * @param {(server: WebSocket.Server<typeof WebSocket, typeof IncomingMessage>, 
+*           client: WebSocket,
+*          ) => void} hook 
+*/
+exports.onConnection = function (hook) {
+    connectHooks.push(hook);
+}
+
+const dataHooks = [];
 /**
  * Add a hook to the WebSocket message event
  * @param {(server: WebSocket.Server<typeof WebSocket, typeof IncomingMessage>, 
@@ -62,7 +74,7 @@ const hooks = [];
  *         }) => void} hook 
  */
 exports.onData = function (hook) {
-    hooks.push(hook);
+    dataHooks.push(hook);
 }
 
 // ---------------
@@ -85,8 +97,10 @@ wss.on("connection", function connection(ws) {
         }
         packetTime[data.type] = data.time;
 
-        for (const hook of hooks) hook?.(wss, ws, data);
+        for (const hook of dataHooks) hook?.(wss, ws, data);
     });
+
+    for (const hook of connectHooks) hook?.(wss, ws);
 });
 
 // ---------------

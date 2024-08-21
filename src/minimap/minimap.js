@@ -13,24 +13,44 @@ server.route(function (fastify) {
     });
 });
 
-// Location
+// State
+let enabled = true;
+
+server.onConnection(function (server, client) {
+    client.send(JSON.stringify({ type: "enable-minimap", enable: enabled }));
+});
+
 server.onData(function (server, client, data) {
+    switch (data.type) {
+        case "enable-minimap":
+            if (data.enable !== undefined) enabled = data.enable;
+            else enabled = !enabled;
+            server.clients.forEach(target => {
+                target.send(JSON.stringify({ type: data.type, enable: enabled }));
+            });
+            console.log(`Minimap ${enabled ? "enabled" : "disabled"}`);
+            break;
+    }
+});
+
+// Map
+server.onData(function (server, client, data) {
+    if (!enabled) return;
+
     switch (data.type) {
         case "map":
             cacheMap(data.x, data.y, data.tile);
-            return;
+            break;
         case "request-map":
             loadMap(client, data.x, data.y);
-            return;
-    }
-    server.clients.forEach(target => {
-        if (target === client) return;
-        switch (data.type) {
-            case "location":
+            break;
+        case "location":
+            server.clients.forEach(target => {
+                if (target === client) return;
                 target.send(JSON.stringify({ type: "location", time: data.time, latitude: data.latitude, longitude: data.longitude }));
-                break;
-        }
-    });
+            });
+            break;
+    }
 });
 
 const cacheDir = "cache";

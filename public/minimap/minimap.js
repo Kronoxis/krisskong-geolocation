@@ -108,6 +108,8 @@ class Minimap {
 
         this.error = false;
 
+        this.enabled = true;
+
         this.update();
 
         this._resize = this.resize.bind(this);
@@ -122,13 +124,18 @@ class Minimap {
     set location({ latitude, longitude }) { this._targetLatitude = latitude; this._targetLongitude = longitude; }
 
     update(time) {
+        if (!this.enabled) {
+            requestAnimationFrame(this._update);
+            return;
+        }
+
         // Render the buffer when it is ready
         if (this._needsUpdate) {
             this.display.innerHTML = this.buffer.innerHTML;
             this._needsUpdate = false;
         }
 
-        // Replace pin with question mark if not connected
+        // Replace pin with question mark if not connected        
         this.pin.classList.toggle("error", this.error);
 
         // Smooth location and pin rotation
@@ -161,7 +168,7 @@ class Minimap {
         if (this._fetch === null) {
             const x = Tile.longitudeToTile(this._longitude);
             const y = Tile.latitudeToTile(this._latitude);
-            if (x !== this._tileX || y !== this._tileY ) {
+            if (x !== this._tileX || y !== this._tileY) {
                 this.requestTile(x, y);
             }
         }
@@ -234,6 +241,10 @@ class Minimap {
 
         // Update display after buffer has rendered
         this._needsUpdate = true;
+    }
+
+    enable(state) {
+        this.enabled = state;
     }
 }
 const minimap = new Minimap();
@@ -529,6 +540,12 @@ function connect() {
             }
             case "map": {
                 minimap.onTile(data);
+                break;
+            }
+            case "enable-minimap": {
+                const { enable } = data;
+                document.querySelector(".main-container").style.display = enable ? "" : "none";
+                minimap.enable(enable);
                 break;
             }
         }
