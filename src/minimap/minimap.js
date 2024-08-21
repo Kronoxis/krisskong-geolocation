@@ -1,9 +1,14 @@
 const env = require("dotenv").config(".env").parsed;
 const server = require("../../server.js");
 
+let enabled = true;
+
 // Overlay
 server.route(function (fastify) {
     fastify.get("/minimap", function (request, reply) {
+        if (!enabled) {
+            return reply.view("src/empty.hbs");
+        }
         return reply.view("/src/minimap/minimap.hbs", {
             URL: env.DEBUG ? "http://localhost:3000" : `https://${env.PROJECT}.glitch.me`,
             SOCKET: env.DEBUG ? "ws://localhost:3000" : `wss://${env.PROJECT}.glitch.me`
@@ -23,4 +28,11 @@ server.onLocationChanged(function (server, client, data) {
                 target.send(JSON.stringify({ type: "map", time: data.time, image: data.image }));
         }
     });
+});
+
+
+server.onLocationChanged(function (server, client, data) {
+    if (data.type !== "enable-minimap") return;
+    if (data.enable !== undefined) enabled = data.enable
+    else enabled = !enabled;
 });
