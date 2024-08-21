@@ -38,3 +38,7 @@ server.onLocationChanged(function (server, client, data) {
         target.send(JSON.stringify(data));
     });
 });
+
+server.onConnection(function (server, client) {
+    client.send(JSON.stringify({ type: "enable-minimap", enable: enabled }));
+});

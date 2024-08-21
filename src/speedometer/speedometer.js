@@ -30,6 +30,10 @@ server.onLocationChanged(function (server, client, data) {
     });
 });
 
+server.onConnection(function (server, client) {
+    client.send(JSON.stringify({ type: "enable-speedometer", enable: enabled }));
+});
+
 // Calculate Speed
 let speed = 0;
 server.onLocationChanged(function (server, client, data) {
