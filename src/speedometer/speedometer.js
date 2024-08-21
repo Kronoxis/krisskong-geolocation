@@ -6,9 +6,6 @@ let enabled = true;
 // Overlay
 server.route(function (fastify) {
     fastify.get("/speedometer", function (request, reply) {
-        if (!enabled) {
-            return reply.view("/src/empty.hbs");
-        }
         return reply.view("/src/speedometer/speedometer.hbs", { 
             URL: env.DEBUG ? "http://localhost:3000" : `https://${env.PROJECT}.glitch.me`,
             SOCKET: env.DEBUG ? "ws://localhost:3000" : `wss://${env.PROJECT}.glitch.me`
@@ -36,6 +33,7 @@ server.onLocationChanged(function (server, client, data) {
 // Calculate Speed
 let speed = 0;
 server.onLocationChanged(function (server, client, data) {
+    if (!enabled) return;
     if (data.type !== "location") return;
     
     const distance = haversine(data.latitude, data.longitude);

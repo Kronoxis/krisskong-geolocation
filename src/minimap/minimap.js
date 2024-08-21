@@ -6,9 +6,6 @@ let enabled = true;
 // Overlay
 server.route(function (fastify) {
     fastify.get("/minimap", function (request, reply) {
-        if (!enabled) {
-            return reply.view("src/empty.hbs");
-        }
         return reply.view("/src/minimap/minimap.hbs", {
             URL: env.DEBUG ? "http://localhost:3000" : `https://${env.PROJECT}.glitch.me`,
             SOCKET: env.DEBUG ? "ws://localhost:3000" : `wss://${env.PROJECT}.glitch.me`
@@ -18,6 +15,7 @@ server.route(function (fastify) {
 
 // Location
 server.onLocationChanged(function (server, client, data) {
+    if (!enabled) return;
     server.clients.forEach(target => {
         if (target === client) return;
         switch (data.type) {
