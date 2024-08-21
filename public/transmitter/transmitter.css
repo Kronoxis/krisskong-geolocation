@@ -87,10 +87,23 @@ button {
     justify-content: flex-start;
     height: 100%;
     gap: 16px;
+    width: 200px;
 }
 
 .preview {
     justify-content: space-evenly;
+}
+
+.enable::before {
+    content: "Disable "
+}
+
+.enable.disabled::before {
+    content: "Enable "
+}
+
+.disabled~* {
+    display: none;
 }
 
 .toggle::before {

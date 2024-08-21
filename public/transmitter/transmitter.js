@@ -249,3 +249,9 @@ const minimap = new Minimap();
 function approximately(a, b, epsilon = 1e-10) {
     return Math.abs(a - b) < epsilon;
 }
+
+window.enableApplication = function (application, enable) {
+    if (websocket.readyState === WebSocket.OPEN) {
+        websocket.send(JSON.stringify({ type: `enable-${application}`, enable }));
+    }
+}

@@ -1,9 +1,14 @@
 const env = require("dotenv").config(".env").parsed;
 const server = require("../../server.js");
 
+let enabled = true;
+
 // Overlay
 server.route(function (fastify) {
     fastify.get("/speedometer", function (request, reply) {
+        if (!enabled) {
+            return reply.view("/src/empty.hbs");
+        }
         return reply.view("/src/speedometer/speedometer.hbs", { 
             URL: env.DEBUG ? "http://localhost:3000" : `https://${env.PROJECT}.glitch.me`,
             SOCKET: env.DEBUG ? "ws://localhost:3000" : `wss://${env.PROJECT}.glitch.me`
@@ -16,6 +21,12 @@ server.route(function (fastify) {
     fastify.get("/speed", function (request, reply) {
         return reply.code(200).send(speed);
     });
+});
+
+server.onLocationChanged(function (server, client, data) {
+    if (data.type !== "enable-speedometer") return;
+    if (data.enable !== undefined) enabled = data.enable
+    else enabled = !enabled;
 });
 
 // Calculate Speed
