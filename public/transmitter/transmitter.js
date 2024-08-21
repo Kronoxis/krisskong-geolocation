@@ -206,6 +206,8 @@ class Minimap {
         this._update = this.update.bind(this);
         this._time = -1;
 
+        this.enabled = true;
+
         this.update();
     }
 
@@ -220,6 +222,8 @@ class Minimap {
     set location({ latitude, longitude }) { this._targetLatitude = latitude; this._targetLongitude = longitude; }
 
     update(time) {
+        if (!this.enabled) return;
+        
         // if (this._time > 0) {
         //     const deltaTime = (time - this._time) * 0.001;
         //     const t = Math.min(deltaTime, Math.max(deltaTime, 0.001), 0.2);
@@ -243,6 +247,10 @@ class Minimap {
 
         // requestAnimationFrame(this._update);
     }
+
+    enable(state) {
+        this.enabled = state;
+    }
 }
 const minimap = new Minimap();
 
@@ -251,6 +259,9 @@ function approximately(a, b, epsilon = 1e-10) {
 }
 
 window.enableApplication = function (application, enable) {
+    if (application === "minimap") {
+        minimap.enable(enable);
+    }
     if (websocket.readyState === WebSocket.OPEN) {
         websocket.send(JSON.stringify({ type: `enable-${application}`, enable }));
     }

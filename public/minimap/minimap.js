@@ -18,6 +18,8 @@ class Minimap {
 
         this.error = false;
 
+        this.enabled = true;
+
         this.update();
 
         this._resize = this.resize.bind(this);
@@ -32,6 +34,8 @@ class Minimap {
     set image(data) { this._map = data; }
 
     update(time) {
+        if (!this.enabled) return;
+        
         this.pin.classList.toggle("error", this.error);
         if (this.error) {
             this._rotation = 0;
@@ -64,6 +68,10 @@ class Minimap {
         const { clientWidth: elementSize } = this.element;
         const scale = pageSize / elementSize;
         this.element.style.transform = `scale(${scale})`;
+    }
+
+    enable(state) {
+        this.enabled = state;
     }
 }
 const minimap = new Minimap();
@@ -100,6 +108,10 @@ function connect() {
             case "map":
                 const { image } = data;
                 minimap.image = image;
+                break;
+            case "enable-minimap":
+                const { enable } = data;
+                document.querySelector(".main-container").style.display = enable ? "" : "none";
                 break;
         }
     });

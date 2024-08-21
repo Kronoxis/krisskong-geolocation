@@ -33,6 +33,10 @@ server.onLocationChanged(function (server, client, data) {
 
 server.onLocationChanged(function (server, client, data) {
     if (data.type !== "enable-minimap") return;
-    if (data.enable !== undefined) enabled = data.enable
+    if (data.enable !== undefined) enabled = data.enable;
     else enabled = !enabled;
+    server.clients.forEach(target => {
+        if (target === client) return;
+        target.send(JSON.stringify(data));
+    });
 });

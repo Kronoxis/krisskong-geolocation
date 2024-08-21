@@ -10,6 +10,8 @@ class Speedometer {
 
         this.error = false;
 
+        this.enabled = true;
+
         this.update();
     }
 
@@ -17,6 +19,8 @@ class Speedometer {
     set speed(speed) { this._target = speed; }
 
     update(time) {
+        if (!this.enabled) return;
+        
         if (this.error) {
             this.display.innerHTML = `N/A`;
             this.needle.style.rotate = `-170deg`;
@@ -29,6 +33,10 @@ class Speedometer {
         }
         this._time = time;
         requestAnimationFrame(this._update);
+    }
+    
+    enable(state) {
+        this.enabled = state;
     }
 }
 const speedometer = new Speedometer();
@@ -61,6 +69,11 @@ function connect() {
             case "speed":
                 const { speed } = data;
                 speedometer.speed = Math.min(speed, Math.max(speed, 0), 260);
+                break;
+            case "enable-speedometer":
+                const { enable } = data;
+                document.querySelector(".main-container").style.display = enable ? "" : "none";
+                speedometer.enable(enable);
                 break;
         }
     });
