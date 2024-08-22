@@ -124,10 +124,7 @@ class Minimap {
     set location({ latitude, longitude }) { this._targetLatitude = latitude; this._targetLongitude = longitude; }
 
     update(time) {
-        if (!this.enabled) {
-            requestAnimationFrame(this._update);
-            return;
-        }
+        if (!this.enabled) return;
 
         // Render the buffer when it is ready
         if (this._needsUpdate) {
@@ -244,6 +241,7 @@ class Minimap {
     }
 
     enable(state) {
+        if (!this.enabled && state) requestAnimationFrame(this._update);
         this.enabled = state;
     }
 }
