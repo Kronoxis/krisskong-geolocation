@@ -71,6 +71,7 @@ class Minimap {
     }
 
     enable(state) {
+        if (!this.enabled && state) requestAnimationFrame(this._update);
         this.enabled = state;
     }
 }
