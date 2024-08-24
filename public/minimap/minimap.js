@@ -148,7 +148,10 @@ class Minimap {
             const dLon = this._longitude - this._lastLongitude;
             if (Math.abs(dLat) > 0.000001 * t || Math.abs(dLon) > 0.000001 * t) {
                 const len = Math.sqrt(dLat * dLat + dLon * dLon);
-                this._rotation = Math.atan2(dLon / len, dLat / len) * 180 / Math.PI;
+                let rot = Math.atan2(dLon / len, dLat / len) * 180 / Math.PI;
+                while (this._rotation - rot > 180) rot += 360;
+                while (this._rotation - rot < -180) rot -= 360;
+                this._rotation = rot;
             }
         }
         this._time = time;
