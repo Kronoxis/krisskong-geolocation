@@ -159,15 +159,14 @@ class Minimap {
         this.pin.style.transform = `rotate(${this._rotation}deg)`;
 
         this.display.style.transform = `scale(${Math.pow(2, targetZoom - zoom)}) translate(${mapRange(this._latitude, this._bounds[0], this._bounds[2], displaySize * 0.5, -displaySize * 0.5)}px, ${mapRange(this._longitude, this._bounds[1], this._bounds[3], displaySize * 0.5, -displaySize * 0.5)}px)`;
-        // console.log(this._latitude, this._longitude, ...this._bounds);
 
         this._lastLatitude = this._latitude;
         this._lastLongitude = this._longitude;
 
         // Update tile
         if (this._fetch === null) {
-            const x = Tile.longitudeToTile(this._longitude);
-            const y = Tile.latitudeToTile(this._latitude);
+            const x = Math.round(Tile.longitudeOnTile(this._longitude));
+            const y = Math.round(Tile.latitudeOnTile(this._latitude));
             if (x !== this._tileX || y !== this._tileY) {
                 this.requestTile(x, y);
             }
