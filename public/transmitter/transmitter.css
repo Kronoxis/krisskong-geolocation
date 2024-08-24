@@ -90,6 +90,27 @@ button {
     width: 200px;
 }
 
+.controls {
+    margin: 20px;
+    align-items: center;
+    justify-content: center;
+}
+
+.controls .col {
+    width: auto;
+}
+
+.controls button {
+    width: 31px;
+    padding: 8px;
+    user-select: none;    
+}
+
+.controls button.active {
+    background-color: darkgreen;
+    color: white;
+}
+
 .preview {
     justify-content: space-evenly;
 }

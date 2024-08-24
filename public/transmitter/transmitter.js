@@ -165,12 +165,17 @@ function onError(e) {
     running.innerHTML = `Something went wrong! Refresh and try again.<br/>Error code: ${e.code}`;
 }
 
+let fakeLatitude = 46.056946;
+let fakeLongitude = 14.505751;
+let fakeX = 0, fakeY = 0;
 function fakePosition() {
-    // Send random position
+    // Send fake position
+    fakeLongitude += fakeX === null ? Math.random() * 0.0002 - 0.0001 : 0.0001 * fakeX;
+    fakeLatitude += fakeY === null ? Math.random() * 0.0002 - 0.0001 : 0.0001 * fakeY;
     onPosition({
         coords: {
-            latitude: 46.056946 + Math.random() * 0.0002,
-            longitude: 14.505751 + Math.random() * 0.0002
+            latitude: fakeLatitude,
+            longitude: fakeLongitude
         }
     });
 }
@@ -179,4 +184,9 @@ window.enableApplication = function (application, enable) {
     if (websocket.readyState === WebSocket.OPEN) {
         websocket.send(JSON.stringify({ type: `enable-${application}`, enable }));
     }
+}
+
+window.setDirection = function (x, y) {
+    fakeX = x;
+    fakeY = y;
 }
