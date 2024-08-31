@@ -53,12 +53,12 @@ server.onData(function (server, client, data) {
     }
 });
 
-const cacheDir = "public/cache";
+const cacheDir = "cache";
 const cacheFile = (x, y) => path.join(cacheDir, x.toFixed(0), y.toFixed(0), "tile.json");
 
 async function cacheMap(x, y, tile) {
     const file = cacheFile(x, y);
-    await mkdir(path.dirname(file), { mode: 0o644, recursive: true });
+    await mkdir(path.dirname(file), { mode: 0o755, recursive: true });
     await writeFile(file, JSON.stringify(tile), { encoding: "utf-8" });
 }
 
