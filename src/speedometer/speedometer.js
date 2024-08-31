@@ -1,12 +1,10 @@
 const env = require("dotenv").config(".env").parsed;
 const server = require("../../server.js");
 
-let enabled = true;
-
 // Overlay
 server.route(function (fastify) {
     fastify.get("/speedometer", function (request, reply) {
-        return reply.view("/src/speedometer/speedometer.hbs", { 
+        return reply.view("/src/speedometer/speedometer.hbs", {
             URL: env.DEBUG ? "http://localhost:3000" : `https://${env.PROJECT}.glitch.me`,
             SOCKET: env.DEBUG ? "ws://localhost:3000" : `wss://${env.PROJECT}.glitch.me`
         });
@@ -20,38 +18,47 @@ server.route(function (fastify) {
     });
 });
 
-server.onLocationChanged(function (server, client, data) {
-    if (data.type !== "enable-speedometer") return;
-    if (data.enable !== undefined) enabled = data.enable;
-    else enabled = !enabled;
-    server.clients.forEach(target => {
-        if (target === client) return;
-        target.send(JSON.stringify(data));
-    });
-});
+// State
+let enabled = true;
 
 server.onConnection(function (server, client) {
     client.send(JSON.stringify({ type: "enable-speedometer", enable: enabled }));
 });
 
+server.onData(function (server, client, data) {
+    switch (data.type) {
+        case "enable-speedometer":
+            if (data.enable !== undefined) enabled = data.enable;
+            else enabled = !enabled;
+            server.clients.forEach(target => {
+                target.send(JSON.stringify({ type: data.type, enable: enabled }));
+            });
+            console.log(`Speedometer ${enabled ? "enabled" : "disabled"}`);
+            break;
+    }
+});
+
 // Calculate Speed
 let speed = 0;
-server.onLocationChanged(function (server, client, data) {
+server.onData(function (server, client, data) {
     if (!enabled) return;
-    if (data.type !== "location") return;
-    
-    const distance = haversine(data.latitude, data.longitude);
-    const delta = deltaTime(data.time);
-    if (delta > toHours(10)) {
-        speed = distance / delta;
+
+    switch (data.type) {
+        case "location":
+            const distance = haversine(data.latitude, data.longitude);
+            const delta = deltaTime(data.time);
+            if (delta > toHours(10)) {
+                speed = distance / delta;
+            }
+
+            console.log(`${new Date(data.time).toLocaleTimeString()}: ${speed.toFixed(2)}km/h`);
+
+            server.clients.forEach(target => {
+                if (target === client) return;
+                target.send(JSON.stringify({ type: "speed", time: data.time, speed }));
+            });
+            break;
     }
-
-    console.log(`${new Date(data.time).toLocaleTimeString()}: ${speed.toFixed(2)}km/h`);
-
-    server.clients.forEach(target => {
-        if (target === client) return;
-        target.send(JSON.stringify({ type: "speed", time: data.time, speed }));
-    })
 });
 
 const last = {

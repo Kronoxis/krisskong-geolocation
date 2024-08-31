@@ -40,7 +40,23 @@
     top: calc(var(--stroke) * -0.25);
     margin: 0;
     border-radius: 100%;
+    transform: rotate(-90deg);
     z-index: -1;
+}
+
+#map path {
+    fill: none;
+    stroke: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+#buffer {
+    opacity: 0;
+}
+
+#display {
+    transform-origin: center;
 }
 
 .overlay {

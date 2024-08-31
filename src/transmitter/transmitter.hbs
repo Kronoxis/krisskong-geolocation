@@ -10,18 +10,6 @@
 
     <!-- import the webpage's stylesheet -->
     <link rel="stylesheet" href="/transmitter/transmitter.css" />
-
-    <!-- For Minimap -->
-    <!-- Leaflet -->
-    <link rel="stylesheet" href="/minimap/leaflet.css" />
-    <script type="text/javascript" src="/minimap/leaflet.js"></script>
-
-    <!-- MapLibre GL JS (still required to handle the rendering) -->
-    <link rel="stylesheet" href="/minimap/maplibre-gl.css" />
-    <script type="text/javascript" src="/minimap/maplibre-gl.js"></script>
-
-    <!-- Mapbox GL Leaflet -->
-    <script type="text/javascript" src="/minimap/mapbox-gl-leaflet.js"></script>
 </head>
 
 <body>
@@ -52,6 +40,29 @@
         <span id="data"></span>
     </p>
 
+    <div class="row controls" style="display: none;">
+        <div class="col">
+            <button data-dir="-+" onclick="debugDirection.call(this)">↖</button>
+            <button data-dir="-0" onclick="debugDirection.call(this)">←</button>
+            <button data-dir="--" onclick="debugDirection.call(this)">↙</button>
+        </div>
+        <div class="col">
+            <button data-dir="0+" onclick="debugDirection.call(this)">↑</button>
+            <button data-dir="00" onclick="debugDirection.call(this)" class="active">•</button>
+            <button data-dir="0-" onclick="debugDirection.call(this)">↓</button>
+        </div>
+        <div class="col">
+            <button data-dir="++" onclick="debugDirection.call(this)">↗</button>
+            <button data-dir="+0" onclick="debugDirection.call(this)">→</button>
+            <button data-dir="+-" onclick="debugDirection.call(this)">↘</button>
+        </div>
+        <div class="col">
+            <button data-val="+" onclick="debugSpeed.call(this)">+</button>
+            <button data-dir="??" onclick="debugDirection.call(this)">?</button>
+            <button data-val="-" onclick="debugSpeed.call(this)">-</button>
+        </div>
+    </div>
+
     <div class="row preview">
         <!-- Preview Speedometer -->
         <div class="col">
@@ -68,12 +79,8 @@
         </div>
     </div>
 
-    <div id="minimap"></div>
-
-    <script>window.URL = "{{ URL }}"</script>
     <script>window.SOCKET = "{{ SOCKET }}"</script>
-    <script>window.STADIA_API_KEY = "{{ STADIA_API_KEY }}"</script>
-    <script src="/transmitter/transmitter.js"></script>
+    <script type="module" src="/transmitter/transmitter.js"></script>
     <script>
         function enable(application) {
             this.classList.toggle("disabled");
@@ -90,6 +97,42 @@
                 frame.src = `{{ URL }}/${application}`;
                 this.parentElement.querySelector("div")?.appendChild(frame);
             }
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        const debug = params.has("debug");
+        if (debug) document.querySelector(".controls").style.display = "";
+        function debugDirection() {
+            for (const btn of document.querySelectorAll(".controls button")) {
+                btn.classList.toggle("active", btn === this);
+            }
+
+            const decodeDir = function (value) {
+                switch (value) {
+                    case "+": return 1;
+                    case "0": return 0;
+                    case "-": return -1;
+                    case "?": return null;
+                }
+                return 0;
+            }
+            const dir = this.getAttribute("data-dir");
+            const x = decodeDir(dir[0]);
+            const y = decodeDir(dir[1]);
+            window.setDirection(x, y);
+        }
+
+        function debugSpeed() {
+            const decodeVal = function (value) {
+                switch (value) {
+                    case "+": return 1.1;
+                    case "-": return 0.9;
+                }
+                return 0;
+            }
+            const value = this.getAttribute("data-val");
+            const val = decodeVal(value);
+            window.addSpeed(val);
         }
     </script>
 </body>

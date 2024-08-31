@@ -73,7 +73,7 @@ const dataHooks = [];
  *            time: number; 
  *         }) => void} hook 
  */
-exports.onLocationChanged = function (hook) {
+exports.onData = function (hook) {
     dataHooks.push(hook);
 }
 

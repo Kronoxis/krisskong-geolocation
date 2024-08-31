@@ -153,10 +153,6 @@ function onPosition(pos) {
     // Send position to server
     if (websocket.readyState === WebSocket.OPEN) {
         websocket.send(JSON.stringify(locationData));
-
-        // Update Minimap
-        minimap.location = { latitude, longitude };
-        minimap.update();
     }
 
     // Update UI
@@ -169,100 +165,33 @@ function onError(e) {
     running.innerHTML = `Something went wrong! Refresh and try again.<br/>Error code: ${e.code}`;
 }
 
+let fakeLatitude = 46.056946;
+let fakeLongitude = 14.505751;
+let fakeX = 0, fakeY = 0;
+let fakeS = 1;
 function fakePosition() {
-    // Send random position
+    // Send fake position
+    fakeLongitude += fakeX === null ? Math.random() * 0.0002 - 0.0001 : 0.0001 * fakeX * fakeS;
+    fakeLatitude += fakeY === null ? Math.random() * 0.0002 - 0.0001 : 0.0001 * fakeY * fakeS;
     onPosition({
         coords: {
-            latitude: 46.056946 + Math.random() * 0.0002,
-            longitude: 14.505751 + Math.random() * 0.0002
+            latitude: fakeLatitude,
+            longitude: fakeLongitude
         }
     });
 }
 
-// Render out the minimap on device (due to StreamElements limitations)
-const mapData = { type: "map", image: "", time: -1 };
-class Minimap {
-    constructor() {
-        this.display = document.querySelector("#minimap");
-
-        this.map = L.map(this.display, {
-            dragging: false,
-            keyboard: false,
-            zoomControl: false,
-            scrollWheelZoom: false,
-            doubleClickZoom: false,
-            touchZoom: false,
-            tap: false,
-            attributionControl: false,
-            center: [46.056946, 14.505751],
-            zoom: 17,
-        });
-        this.setStyle();
-
-        this._latitude = 46.056946;
-        this._longitude = 14.505751;
-        this._targetLatitude = this._latitude;
-        this._targetLongitude = this._longitude;
-        this._update = this.update.bind(this);
-        this._time = -1;
-
-        this.enabled = true;
-
-        this.update();
-    }
-
-    async setStyle() {
-        const response = await fetch(`${window.URL}/minimap/mapstyle.json`);
-        const style = await response.json();
-        // style.sources.openmaptiles.url += `?api_key=${window.STADIA_API_KEY}`;
-        L.maplibreGL({ style }).addTo(this.map);
-    }
-
-    get location() { return { latitude: this._latitude, longitude: this._longitude }; }
-    set location({ latitude, longitude }) { this._targetLatitude = latitude; this._targetLongitude = longitude; }
-
-    update(time) {
-        if (!this.enabled) return;
-        
-        // if (this._time > 0) {
-        //     const deltaTime = (time - this._time) * 0.001;
-        //     const t = Math.min(deltaTime, Math.max(deltaTime, 0.001), 0.2);
-        //     this._latitude = this._latitude * (1 - t) + this._targetLatitude * t;
-        //     this._longitude = this._longitude * (1 - t) + this._targetLongitude * t;
-        // }
-        // this._time = time;
-
-        // if (!approximately(this._latitude, this._targetLatitude) ||
-        //     !approximately(this._longitude, this._targetLongitude)) {
-
-            // this.map.panTo([this._latitude, this._longitude]);
-            this.map.panTo([this._targetLatitude, this._targetLongitude], { animate: false });
-            if (!this.canvas) this.canvas = this.display.querySelector("canvas");
-            if (this.canvas) {
-                mapData.image = this.canvas.toDataURL("png");
-                mapData.time = Date.now();
-                websocket.send(JSON.stringify(mapData));
-            }
-        // }
-
-        // requestAnimationFrame(this._update);
-    }
-
-    enable(state) {
-        this.enabled = state;
-    }
-}
-const minimap = new Minimap();
-
-function approximately(a, b, epsilon = 1e-10) {
-    return Math.abs(a - b) < epsilon;
-}
-
 window.enableApplication = function (application, enable) {
-    if (application === "minimap") {
-        minimap.enable(enable);
-    }
     if (websocket.readyState === WebSocket.OPEN) {
         websocket.send(JSON.stringify({ type: `enable-${application}`, enable }));
     }
+}
+
+window.setDirection = function (x, y) {
+    fakeX = x;
+    fakeY = y;
+}
+
+window.addSpeed = function (value) {
+    fakeS *= value;
 }
