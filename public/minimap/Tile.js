@@ -24,7 +24,7 @@ export class Tile {
     static get size() {
         return Tile._size;
     }
-    
+
     static set size(size) {
         Tile._size = size;
     }
@@ -111,6 +111,15 @@ export class Tile {
         this.elements[order].push(element);
     }
 
+    find(order, type) {
+        if (!this.elements[order]) return null;
+        for (const el of this.elements[order]) {
+            if (el.getAttribute("data-type") !== type) continue;
+            return el;
+        }
+        return null;
+    }
+
     draw(target, index) {
         // Offset tile based on index
         const x = ((index % 3) - 1);
@@ -176,7 +185,8 @@ export class Tile {
             let order = 0;
             if (element.type !== "way") continue;
 
-            const el = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            let type = "";
+            let style = {};
 
             // Custom styles
             if (element.tags?.landuse) {
@@ -184,79 +194,70 @@ export class Tile {
                 closed = true;
                 let color = "none";
                 switch (element.tags.landuse) {
-                    case "forest": color = "#37672d"; break;
-                    case "farmland": color = "#e7da8e"; break;
-                    case "residential": color = "#98989a"; order = 1; break;
-                    case "industrial": color = "#404040"; order = 1; break;
-                    case "grass": color = "#788b3c"; order = 2; break;
+                    case "forest": type = "forest"; color = "#37672d"; break;
+                    case "farmland": type = "farmland"; color = "#e7da8e"; break;
+                    case "residential": type = "residential"; color = "#98989a"; order = 1; break;
+                    case "industrial": type = "industrial"; color = "#404040"; order = 1; break;
+                    case "grass": type = "grass"; color = "#788b3c"; order = 2; break;
                     default: continue;
                 }
-                el.style.fill = color;
+                style.fill = color;
             } else if (element.tags?.water) {
                 order = 0;
                 closed = true;
-                el.style.fill = "#738aaf";
+                type = "water";
+                style.fill = "#738aaf";
             } else if (element.tags?.waterway) {
                 order = 0;
                 let width = 0;
                 switch (element.tags.waterway) {
-                    case "stream": width = 1; break;
-                    case "tidal_channel": width = 1; break;
-                    case "ditch": width = 1; break;
-                    case "river": width = 2; break;
-                    case "canal": width = 2; break;
+                    case "stream": case "tidal_channel": case "ditch": type = "stream"; width = 1; break;
+                    case "river": case "canal": type = "river"; width = 2; break;
                     default: continue;
                 }
-                el.style.stroke = "#738aaf";
-                el.style.strokeWidth = width.toString();
+                style.stroke = "#738aaf";
+                style.strokeWidth = width.toString();
             } else if (element.tags?.building) {
                 order = 100;
                 closed = true;
-                el.style.fill = "#ffffff";
+                type = "building";
+                style.fill = "#ffffff";
             } else if (element.tags?.railway) {
                 order = 200;
                 let width = 0;
                 let dotted = false;
                 switch (element.tags.railway) {
-                    case "light_rail": width = 1; break;
-                    case "monorail": width = 1; break;
-                    case "narrow_gauge": width = 1; break;
-                    case "rail": width = 2; break;
-                    case "subway": width = 2; dotted = true; break;
-                    case "tram": width = 2; break;
+                    case "light_rail": case "monorail": case "narrow_gauge": type = "monorail"; width = 1; break;
+                    case "rail": case "tram": type = "rail"; width = 2; break;
+                    case "subway": type = "subway"; width = 2; dotted = true; break;
                     default: continue;
                 }
-                el.style.stroke = "#4a0c00";
-                el.style.strokeWidth = width.toString();
+                style.stroke = "#4a0c00";
+                style.strokeWidth = width.toString();
             } else if (element.tags?.highway) {
                 order = 300;
                 let width = 0;
                 switch (element.tags.highway) {
-                    case "living_street": width = 1; break;
-                    case "service": width = 1; break;
-                    case "residential": width = 2; break;
-                    case "tertiary": width = 4; break;
-                    case "tertiary_link": width = 4; break;
-                    case "secondary": width = 6; break;
-                    case "secondary_link": width = 6; break;
-                    case "primary": width = 8; break;
-                    case "primary_link": width = 8; break;
-                    case "trunk": width = 10; break;
-                    case "trunk_link": width = 10; break;
-                    case "motorway": width = 12; break;
-                    case "motorway_link": width = 12; break;
+                    case "living_street": case "service": type = "living_street"; width = 1; break;
+                    case "residential": type = "residential_street"; width = 2; break;
+                    case "tertiary": case "tertiary_link": type = "tertiary_street"; width = 4; break;
+                    case "secondary": case "secondary_link": type = "secondary_street"; width = 6; break;
+                    case "primary": case "primary_link": type = "primary_street"; width = 8; break;
+                    case "trunk": case "trunk_link": type = "trunk"; width = 10; break;
+                    case "motorway": case "motorway_link": type = "motorway"; width = 12; break;
                     default: continue;
                 }
-                el.style.stroke = "#010101";
-                el.style.strokeWidth = width.toString();
+                style.stroke = "#010101";
+                style.strokeWidth = width.toString();
             } else if (element.tags?.boundary) {
                 order = 400;
                 switch (element.tags["admin-level"]) {
                     case 2: break;
                     default: continue;
                 }
-                el.style.stroke = "rgba(189, 0, 0, 0.45)";
-                el.style.strokeWidth = 2;
+                type = "boundary";
+                style.stroke = "rgba(189, 0, 0, 0.45)";
+                style.strokeWidth = 2;
             } else continue;
 
             // Generate path
@@ -268,9 +269,20 @@ export class Tile {
                 path += `${command}${lat} ${lon} `;
             }
             if (closed) path += "Z";
-            el.setAttribute("d", path);
 
-            this.add(order, el);
+            // Append the path to the matching type element
+            const existingEl = this.find(order, type);
+            if (existingEl) {
+                path = (existingEl.getAttribute("d") ?? "") + path;
+                existingEl.setAttribute("d", path);
+            } else {
+                // Create a new element for the type with configured style
+                const el = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                el.setAttribute("data-type", type);
+                el.setAttribute("d", path);
+                for (const key in style) el.style[key] = style[key];
+                this.add(order, el);
+            }
         }
 
         return true;
