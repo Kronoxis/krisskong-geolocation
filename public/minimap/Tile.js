@@ -208,7 +208,7 @@ export class Tile {
                 type = "water";
                 style.fill = "#738aaf";
             } else if (element.tags?.waterway) {
-                order = 0;
+                order = 3;
                 let width = 0;
                 switch (element.tags.waterway) {
                     case "stream": case "tidal_channel": case "ditch": type = "stream"; width = 1; break;
