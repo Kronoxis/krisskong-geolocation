@@ -57,7 +57,9 @@
             <button data-dir="+-" onclick="debugDirection.call(this)">↘</button>
         </div>
         <div class="col">
+            <button data-val="+" onclick="debugSpeed.call(this)">+</button>
             <button data-dir="??" onclick="debugDirection.call(this)">?</button>
+            <button data-val="-" onclick="debugSpeed.call(this)">-</button>
         </div>
     </div>
 
@@ -118,6 +120,19 @@
             const x = decodeDir(dir[0]);
             const y = decodeDir(dir[1]);
             window.setDirection(x, y);
+        }
+
+        function debugSpeed() {
+            const decodeVal = function (value) {
+                switch (value) {
+                    case "+": return 1.1;
+                    case "-": return 0.9;
+                }
+                return 0;
+            }
+            const value = this.getAttribute("data-val");
+            const val = decodeVal(value);
+            window.addSpeed(val);
         }
     </script>
 </body>

@@ -168,10 +168,11 @@ function onError(e) {
 let fakeLatitude = 46.056946;
 let fakeLongitude = 14.505751;
 let fakeX = 0, fakeY = 0;
+let fakeS = 1;
 function fakePosition() {
     // Send fake position
-    fakeLongitude += fakeX === null ? Math.random() * 0.0002 - 0.0001 : 0.0001 * fakeX;
-    fakeLatitude += fakeY === null ? Math.random() * 0.0002 - 0.0001 : 0.0001 * fakeY;
+    fakeLongitude += fakeX === null ? Math.random() * 0.0002 - 0.0001 : 0.0001 * fakeX * fakeS;
+    fakeLatitude += fakeY === null ? Math.random() * 0.0002 - 0.0001 : 0.0001 * fakeY * fakeS;
     onPosition({
         coords: {
             latitude: fakeLatitude,
@@ -189,4 +190,8 @@ window.enableApplication = function (application, enable) {
 window.setDirection = function (x, y) {
     fakeX = x;
     fakeY = y;
+}
+
+window.addSpeed = function (value) {
+    fakeS *= value;
 }
