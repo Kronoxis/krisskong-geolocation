@@ -53,7 +53,7 @@ server.onData(function (server, client, data) {
     }
 });
 
-const cacheDir = "cache";
+const cacheDir = "public/cache";
 const cacheFile = (x, y) => path.join(cacheDir, x.toFixed(0), y.toFixed(0), "tile.json");
 
 async function cacheMap(x, y, tile) {
