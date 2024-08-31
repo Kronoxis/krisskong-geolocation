@@ -3,7 +3,6 @@
 ## Configuration 
 ### Glitch
 1. Configure `PROJECT` in `.env` to match the name of your Glitch project.
-2. Configure `STADIA_API_KEY` in `.env` to contain your [Stadia API key](https://client.stadiamaps.com/dashboard/)
 
 ### StreamElements
 1. Open [Overlays](https://streamelements.com/dashboard/overlays)
@@ -27,6 +26,8 @@
 ## Usage
 Open the glitch.me website. 
 It should automatically start showing your realtime location data and speed.
+
+You can disable application to hide them in the overlay and save on data processing.
 
 ⚠ Keep the website open.
 Location data will stop updating if the device sleeps or the tab becomes inactive.
