@@ -3,6 +3,7 @@
 ## Configuration 
 ### Glitch
 1. Configure `PROJECT` in `.env` to match the name of your Glitch project.
+2. Set `PORT` in `.env` to `3000`.
 
 ### StreamElements
 1. Open [Overlays](https://streamelements.com/dashboard/overlays)
