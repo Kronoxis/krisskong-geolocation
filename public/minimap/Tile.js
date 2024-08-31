@@ -112,17 +112,17 @@ export class Tile {
     }
 
     draw(target, index) {
-        // Draw into group
-        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        // Offset tile based on index
         const x = ((index % 3) - 1);
         const y = -(Math.floor(index / 3) - 1);
-        group.style.transform = `translate(${Tile._size * y}px, ${Tile._size * x}px)`;
-        target.append(group);
+        const transform = `translate(${Tile._size * y}px, ${Tile._size * x}px)`;
 
         // Append tile paths in order
         for (const order in this.elements) {
             for (const element of this.elements[order]) {
-                group.append(element);
+                element.style.transform = transform;
+                element.setAttribute("data-order", order.toString());
+                target.append(element);
             }
         }
     }

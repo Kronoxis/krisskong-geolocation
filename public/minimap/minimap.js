@@ -117,7 +117,25 @@ class Minimap {
 
         // Render the buffer when it is ready
         if (this._needsUpdate) {
-            this.display.innerHTML = this.buffer.innerHTML;
+            const groups = {};
+            this.display.innerHTML = "";
+            for (const element of this.buffer.children) {
+                const order = parseInt(element.getAttribute("data-order"));
+                if (!groups[order]) {
+                    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    group.setAttribute("data-layer", order.toString());
+                    let added = false;
+                    for (const key in groups) {
+                        if (key < order) continue;
+                        this.display.insertBefore(group, groups[key]);
+                        added = true;
+                        break;
+                    }
+                    if (!added) this.display.append(group);
+                    groups[order] = group;
+                }
+                groups[order].append(element.cloneNode());
+            }
             this._needsUpdate = false;
         }
 
