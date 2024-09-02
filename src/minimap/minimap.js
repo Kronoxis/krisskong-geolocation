@@ -15,20 +15,33 @@ server.route(function (fastify) {
 
 // State
 let enabled = true;
+const isEnabled = () => enabled && server.isTransmitting();
 
 server.onConnection(function (server, client) {
-    client.send(JSON.stringify({ type: "enable-minimap", enable: enabled }));
+    if (server.clients.size === 1) enabled = true;
+    client.send(JSON.stringify({ type: "enable-minimap", enable: isEnabled() }));
+});
+
+server.onDisconnection(function (server, client) {
+    server.clients.forEach(target => {
+        target.send(JSON.stringify({ type: "enable-speedometer", enable: isEnabled() }));
+    });
 });
 
 server.onData(function (server, client, data) {
     switch (data.type) {
+        case "connect-transmitter":
+            server.clients.forEach(target => {
+                target.send(JSON.stringify({ type: "enable-minimap", enable: isEnabled() }));
+            });
+            break;
         case "enable-minimap":
             if (data.enable !== undefined) enabled = data.enable;
             else enabled = !enabled;
             server.clients.forEach(target => {
-                target.send(JSON.stringify({ type: data.type, enable: enabled }));
+                target.send(JSON.stringify({ type: data.type, enable: isEnabled() }));
             });
-            console.log(`Minimap ${enabled ? "enabled" : "disabled"}`);
+            console.log(`Minimap ${isEnabled() ? "enabled" : "disabled"}`);
             break;
     }
 });
