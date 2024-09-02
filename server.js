@@ -97,11 +97,23 @@ wss.on("connection", function connection(ws) {
         }
         packetTime[data.type] = data.time;
 
+        if (data.type === "connect-transmitter") {
+            ws.type = "transmitter";
+        }
+
         for (const hook of dataHooks) hook?.(wss, ws, data);
     });
 
+    ws.type = "receiver";
     for (const hook of connectHooks) hook?.(wss, ws);
 });
+
+exports.isTransmitting = function () {
+    for (const client of wss.clients) {
+        if (client.type === "transmitter") return true;
+    }
+    return false;
+};
 
 // ---------------
 // LIFELINE 
