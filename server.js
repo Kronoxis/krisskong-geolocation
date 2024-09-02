@@ -51,7 +51,6 @@ exports.route = function (route) {
 
 // WebSocket Hooks
 const connectHooks = [];
-
 /**
  * Add a hook to the WebSocket connect event
  * @param {(server: WebSocket.Server<typeof WebSocket, typeof IncomingMessage>, 
@@ -60,6 +59,17 @@ const connectHooks = [];
 */
 exports.onConnection = function (hook) {
     connectHooks.push(hook);
+}
+
+const disconnectHooks = [];
+/**
+ * Add a hook to the WebSocket disconnect event
+ * @param {(server: WebSocket.Server<typeof WebSocket, typeof IncomingMessage>, 
+*           client: WebSocket,
+*          ) => void} hook 
+*/
+exports.onDisconnection = function (hook) {
+    disconnectHooks.push(hook);
 }
 
 const dataHooks = [];
@@ -87,6 +97,9 @@ const decoder = new TextDecoder();
 const packetTime = {};
 wss.on("connection", function connection(ws) {
     ws.on("error", console.error);
+    ws.on("close", function disconnect(code) {
+        for (const hook of disconnectHooks) hook?.(wss, ws, { code });
+    });
     ws.on("message", function message(rawData) {
         const data = JSON.parse(decoder.decode(rawData));
 
@@ -97,11 +110,23 @@ wss.on("connection", function connection(ws) {
         }
         packetTime[data.type] = data.time;
 
+        if (data.type === "connect-transmitter") {
+            ws.type = "transmitter";
+        }
+
         for (const hook of dataHooks) hook?.(wss, ws, data);
     });
 
+    ws.type = "receiver";
     for (const hook of connectHooks) hook?.(wss, ws);
 });
+
+exports.isTransmitting = function () {
+    for (const client of wss.clients) {
+        if (client.type === "transmitter") return true;
+    }
+    return false;
+};
 
 // ---------------
 // LIFELINE 

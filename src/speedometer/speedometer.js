@@ -20,20 +20,32 @@ server.route(function (fastify) {
 
 // State
 let enabled = true;
+const isEnabled = () => enabled && server.isTransmitting();
 
 server.onConnection(function (server, client) {
-    client.send(JSON.stringify({ type: "enable-speedometer", enable: enabled }));
+    client.send(JSON.stringify({ type: "enable-speedometer", enable: isEnabled() }));
+});
+
+server.onDisconnection(function (server, client) {
+    server.clients.forEach(target => {
+        target.send(JSON.stringify({ type: "enable-speedometer", enable: isEnabled() }));
+    });
 });
 
 server.onData(function (server, client, data) {
     switch (data.type) {
+        case "connect-transmitter":
+            server.clients.forEach(target => {
+                target.send(JSON.stringify({ type: "enable-speedometer", enable: isEnabled() }));
+            });
+            break;
         case "enable-speedometer":
             if (data.enable !== undefined) enabled = data.enable;
             else enabled = !enabled;
             server.clients.forEach(target => {
-                target.send(JSON.stringify({ type: data.type, enable: enabled }));
+                target.send(JSON.stringify({ type: data.type, enable: isEnabled() }));
             });
-            console.log(`Speedometer ${enabled ? "enabled" : "disabled"}`);
+            console.log(`Speedometer ${isEnabled() ? "enabled" : "disabled"}`);
             break;
     }
 });

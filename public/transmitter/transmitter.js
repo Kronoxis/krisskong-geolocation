@@ -3,6 +3,7 @@ function connect() {
     websocket = new WebSocket(window.SOCKET);
     websocket.addEventListener("open", function () {
         updateInfo();
+        websocket.send(JSON.stringify({ type: "connect-transmitter" }));
     });
     websocket.addEventListener("error", function (event) {
         updateInfo();
