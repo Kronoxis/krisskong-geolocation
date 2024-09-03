@@ -46,9 +46,6 @@ keepAlive();
 // Debug
 const params = new URLSearchParams(window.location.search);
 const debug = params.has("debug");
-if (debug) {
-    watch = setInterval(fakePosition, 2000);
-}
 
 // Geolocation logic
 const locationData = { type: "location", latitude: 0, longitude: 0, time: -1 };
