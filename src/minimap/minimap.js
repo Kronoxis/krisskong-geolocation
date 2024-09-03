@@ -18,7 +18,6 @@ let enabled = true;
 const isEnabled = () => enabled && server.isTransmitting();
 
 server.onConnection(function (server, client) {
-    if (server.clients.size === 1) enabled = true;
     client.send(JSON.stringify({ type: "enable-minimap", enable: isEnabled() }));
 });
 
