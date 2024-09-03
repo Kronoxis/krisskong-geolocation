@@ -23,7 +23,7 @@ server.onConnection(function (server, client) {
 
 server.onDisconnection(function (server, client) {
     server.clients.forEach(target => {
-        target.send(JSON.stringify({ type: "enable-speedometer", enable: isEnabled() }));
+        target.send(JSON.stringify({ type: "enable-minimap", enable: isEnabled() }));
     });
 });
 
