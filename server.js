@@ -121,11 +121,35 @@ wss.on("connection", function connection(ws) {
     for (const hook of connectHooks) hook?.(wss, ws);
 });
 
+let transmitting = false;
+let updateTransmitState;
 exports.isTransmitting = function () {
+    let isTransmitting = false;
     for (const client of wss.clients) {
-        if (client.type === "transmitter") return true;
+        if (client.type === "transmitter") {
+            isTransmitting = true;
+            break;
+        }
     }
-    return false;
+
+    clearTimeout(updateTransmitState);
+    if (isTransmitting) {
+        // Update state immediately
+        transmitting = isTransmitting;
+    } else {
+        // Set a grace period of 1 minute to allow reconnection
+        updateTransmitState = setTimeout(() => {
+            // Update state
+            transmitting = isTransmitting;
+
+            // Call disconnect hooks after grace period ends
+            for (const ws of wss.clients) {
+                for (const hook of dataHooks) hook?.(wss, ws, { type: "connect-transmitter" });
+            }
+        }, 60000);
+    }
+
+    return transmitting;
 };
 
 // ---------------
