@@ -29,7 +29,8 @@ class Speedometer {
             const t = Math.min(deltaTime, Math.max(deltaTime, 0.001), 0.2);
             this._speed = this._speed * (1 - t) + this._target * t;
             this.display.innerHTML = `${this._speed.toFixed(0)}`;
-            this.needle.style.rotate = `${this._speed - 170}deg`;
+            const clampedSpeed = Math.min(this._speed, Math.max(this._speed, 0), 260)
+            this.needle.style.rotate = `${clampedSpeed - 170}deg`;
         }
         this._time = time;
         requestAnimationFrame(this._update);
@@ -69,7 +70,7 @@ function connect() {
         switch (data.type) {
             case "speed":
                 const { speed } = data;
-                speedometer.speed = Math.min(speed, Math.max(speed, 0), 260);
+                speedometer.speed = speed;
                 break;
             case "enable-speedometer":
                 const { enable } = data;
